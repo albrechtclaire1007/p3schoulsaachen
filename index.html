@@ -16,7 +16,7 @@
     background:linear-gradient(135deg,#cde4f5 0%,#8ab6d9 50%,#4f7ca0 100%);
     height:100vh; display:grid; place-items:center; overflow:hidden;
   }
-  /* 16:9 stage that always fits without scrolling */
+  /* 16:9 stage */
   .stage{
     position:relative;
     width:min(100vw, calc(100vh * 16 / 9));
@@ -37,16 +37,20 @@
   .word-card.correct-flash{background:#4f7ca0!important;color:#fff!important;animation:flash .8s ease}
   @keyframes flash{50%{transform:scale(1.06)}}
 
-  .board{
-    position:relative; border-radius:12px; flex:1;
+  .board{position:relative;border-radius:12px;flex:1;outline:2px dashed rgba(23,60,87,.2)}
+  /* Inline SVG background */
+  .board::before{
+    content:"";
+    position:absolute; inset:0;
     background:
-      url("REPLACE_CLASSROOM_IMG") center/cover no-repeat,
-      linear-gradient(180deg,#d7e8f6,#a8c6df);
-    outline:2px dashed rgba(23,60,87,.2); /* visible even if bg fails */
+      linear-gradient(180deg,#d7e8f6 0%, #a8c6df 100%);
+    z-index:0;
   }
+  .board svg{position:absolute; inset:0; width:100%; height:100%; z-index:1}
+
   .drop-zone{
-    position:absolute;width:90px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:.25rem;border-radius:12px;transition:.15s transform,.15s background;
+    position:absolute; width:90px; height:90px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:.25rem; border-radius:12px; transition:.15s transform,.15s background; z-index:2;
   }
   .drop-zone.drag-over{background:rgba(205,228,245,.35);transform:scale(1.05)}
   .drop-zone.correct{background:rgba(79,124,160,.18)}
@@ -56,7 +60,7 @@
   .feedback{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);
     background:#fff;padding:.7rem 1.1rem;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25);
-    font-size:clamp(16px,2vw,22px);font-weight:700;opacity:0;pointer-events:none;transition:.2s;border:3px solid transparent;
+    font-size:clamp(16px,2vw,22px);font-weight:700;opacity:0;pointer-events:none;transition:.2s;border:3px solid transparent; z-index:9;
   }
   .feedback.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
   .feedback.correct{color:#173c57;border-color:#4f7ca0}
@@ -75,48 +79,25 @@
     </div>
 
     <div class="game">
-      <div class="word-cards" id="wordContainer">
-        <!-- Use straight apostrophes in data-word; accents are OK (we normalize) -->
-        <div class="word-card" draggable="true" data-word="de Bläistëft">de Bläistëft</div>
-        <div class="word-card" draggable="true" data-word="de Schwamp">de Schwamp</div>
-        <div class="word-card" draggable="true" data-word="de Spëtzer">de Spëtzer</div>
-        <div class="word-card" draggable="true" data-word="de Classeur">de Classeur</div>
-        <div class="word-card" draggable="true" data-word="d'Tafel">d'Tafel</div>
-        <div class="word-card" draggable="true" data-word="d'Léierin">d'Léierin</div>
-        <div class="word-card" draggable="true" data-word="d'Tuschfaart">d'Tuschfaart</div>
-        <div class="word-card" draggable="true" data-word="d'Kräid">d'Kräid</div>
-        <div class="word-card" draggable="true" data-word="d'Blat Pabeier">d'Blat Pabeier</div>
-        <div class="word-card" draggable="true" data-word="de Lineal">de Lineal</div>
-        <div class="word-card" draggable="true" data-word="de Gummi">de Gummi</div>
-        <div class="word-card" draggable="true" data-word="de Schoulsak">de Schoulsak</div>
-        <div class="word-card" draggable="true" data-word="de Pech">de Pech</div>
-        <div class="word-card" draggable="true" data-word="d'Schéier">d'Schéier</div>
-        <div class="word-card" draggable="true" data-word="d'Schachtel">d'Schachtel</div>
-        <div class="word-card" draggable="true" data-word="d'Bläistëftsfaarf">d'Bläistëftsfaarf</div>
-        <div class="word-card" draggable="true" data-word="d'Heft">d'Heft</div>
-        <div class="word-card" draggable="true" data-word="d'Buch">d'Buch</div>
-      </div>
+      <div class="word-cards" id="wordContainer"></div>
 
       <div class="board" id="board">
-        <!-- Positions in %; adjust as you like -->
-        <div class="drop-zone" data-correct="de bläistëft" style="left:20%; top:18%"><img src="https://i.postimg.cc/tnGcRqtr/6.png" alt=""></div>
-        <div class="drop-zone" data-correct="de lineal" style="left:76%; top:27%"><img src="https://i.postimg.cc/14DTCFsb/14.png" alt=""></div>
-        <div class="drop-zone" data-correct="de schwamp" style="left:10%; top:46%"><img src="https://i.postimg.cc/kBX024PZ/24.png" alt=""></div>
-        <div class="drop-zone" data-correct="de gummi" style="left:45%; top:36%"><img src="https://i.postimg.cc/t1xQ9MG4/21.png" alt=""></div>
-        <div class="drop-zone" data-correct="de spëtzer" style="left:30%; top:62%"><img src="https://i.postimg.cc/njf8rGnY/22.png" alt=""></div>
-        <div class="drop-zone" data-correct="de schoulsak" style="left:80%; top:72%"><img src="https://i.postimg.cc/bdTXYnWk/23.png" alt=""></div>
-        <div class="drop-zone" data-correct="de classeur" style="left:60%; top:22%"><img src="https://i.postimg.cc/LnxMDPV2/20.png" alt=""></div>
-        <div class="drop-zone" data-correct="de pech" style="left:65%; top:56%"><img src="https://i.postimg.cc/vcMKpmmT/7.png" alt=""></div>
-        <div class="drop-zone" data-correct="d'tafel" style="left:40%; top:11%"><img src="https://i.postimg.cc/GTLjgWhg/temp-Image-Oxa-Tk-S.avif" alt=""></div>
-        <div class="drop-zone" data-correct="d'schéier" style="left:25%; top:41%"><img src="https://i.postimg.cc/HcXSNGDb/16.png" alt=""></div>
-        <div class="drop-zone" data-correct="d'léierin" style="left:85%; top:31%"><img src="https://i.postimg.cc/qh0cgPnB/temp-Imagevl-Joig.avif" alt=""></div>
-        <div class="drop-zone" data-correct="d'heft" style="left:50%; top:51%"><img src="https://i.postimg.cc/F1QmHNR5/17.png" alt=""></div>
-        <div class="drop-zone" data-correct="d'tuschfaart" style="left:15%; top:66%"><img src="https://i.postimg.cc/xX7VDS7Z/19.png" alt=""></div>
-        <div class="drop-zone" data-correct="d'bläistëftsfaarf" style="left:55%; top:76%"><img src="https://i.postimg.cc/GTRMwMdV/18.png" alt=""></div>
-        <div class="drop-zone" data-correct="d'kräid" style="left:35%; top:81%"><img src="https://i.postimg.cc/fVqgtjfS/15.png" alt=""></div>
-        <div class="drop-zone" data-correct="d'buch" style="left:70%; top:46%"><img src="REPLACE_BUCH_IMG" alt=""></div>
-        <div class="drop-zone" data-correct="d'blat pabeier" style="left:5%; top:26%"><img src="https://i.postimg.cc/dLBfvK7B/13.png" alt=""></div>
-        <div class="drop-zone" data-correct="d'schachtel" style="left:70%; top:86%"><img src="https://i.postimg.cc/LJ8b80LM/8.png" alt=""></div>
+        <!-- Simple classroom SVG (chalkboard + shelves + desks) -->
+        <svg viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
+          <!-- floor -->
+          <rect x="0" y="650" width="1600" height="250" fill="#c6daec"/>
+          <!-- chalkboard -->
+          <rect x="350" y="120" width="900" height="320" rx="12" fill="#2b587a"/>
+          <rect x="340" y="430" width="920" height="20" rx="10" fill="#274f6f"/>
+          <!-- shelves -->
+          <rect x="100" y="150" width="220" height="420" rx="12" fill="#bcd4e8"/>
+          <rect x="1280" y="150" width="220" height="420" rx="12" fill="#bcd4e8"/>
+          <!-- desks -->
+          <rect x="650" y="500" width="300" height="150" rx="12" fill="#aac3d9"/>
+          <rect x="320" y="560" width="300" height="120" rx="12" fill="#aac3d9"/>
+          <rect x="980" y="560" width="300" height="120" rx="12" fill="#aac3d9"/>
+        </svg>
+        <!-- drop-zones will be injected here -->
       </div>
     </div>
 
@@ -124,23 +105,81 @@
   </div>
 
 <script>
-  let score=0, challenge=false, secs=60, timer=null, dragged=null;
+  // DATA — built once, used for both cards and zones = guaranteed matching
+  // Removed Spëtzer and Schoulsak (non-transparent) as requested
+  const ITEMS = [
+    {id:'blaisteft',   label:"de Bläistëft",      img:"https://i.postimg.cc/tnGcRqtr/6.png", pos:{left:"20%", top:"18%"}},
+    {id:'lineal',      label:"de Lineal",         img:"https://i.postimg.cc/14DTCFsb/14.png", pos:{left:"76%", top:"27%"}},
+    {id:'schwamp',     label:"de Schwamp",        img:"https://i.postimg.cc/kBX024PZ/24.png", pos:{left:"10%", top:"46%"}},
+    {id:'gummi',       label:"de Gummi",          img:"https://i.postimg.cc/t1xQ9MG4/21.png", pos:{left:"45%", top:"36%"}},
+    // {id:'spetzer',   label:"de Spëtzer",        img:"",                                   pos:{left:"30%", top:"62%"}}, // removed
+    // {id:'schoulsak', label:"de Schoulsak",      img:"",                                   pos:{left:"80%", top:"72%"}}, // removed
+    {id:'classeur',    label:"de Classeur",       img:"https://i.postimg.cc/LnxMDPV2/20.png", pos:{left:"60%", top:"22%"}},
+    {id:'pech',        label:"de Pech",           img:"https://i.postimg.cc/vcMKpmmT/7.png",  pos:{left:"65%", top:"56%"}},
+    {id:'tafel',       label:"d'Tafel",           img:"https://i.postimg.cc/GTLjgWhg/temp-Image-Oxa-Tk-S.avif", pos:{left:"40%", top:"11%"}},
+    {id:'scheier',     label:"d'Schéier",         img:"https://i.postimg.cc/HcXSNGDb/16.png", pos:{left:"25%", top:"41%"}},
+    {id:'leierin',     label:"d'Léierin",         img:"https://i.postimg.cc/qh0cgPnB/temp-Imagevl-Joig.avif", pos:{left:"85%", top:"31%"}},
+    {id:'heft',        label:"d'Heft",            img:"https://i.postimg.cc/F1QmHNR5/17.png", pos:{left:"50%", top:"51%"}},
+    {id:'tuschfaart',  label:"d'Tuschfaart",      img:"https://i.postimg.cc/xX7VDS7Z/19.png", pos:{left:"15%", top:"66%"}},
+    {id:'blaisteftsf', label:"d'Bläistëftsfaarf", img:"https://i.postimg.cc/GTRMwMdV/18.png", pos:{left:"55%", top:"76%"}},
+    {id:'kraid',       label:"d'Kräid",           img:"https://i.postimg.cc/fVqgtjfS/15.png", pos:{left:"35%", top:"81%"}},
+    {id:'buch',        label:"d'Buch",            img:"https://i.postimg.cc/nMpTLDYK/temp-Image5-PKPI3.avif", pos:{left:"70%", top:"46%"}},
+    {id:'blat',        label:"d'Blat Pabeier",    img:"https://i.postimg.cc/dLBfvK7B/13.png", pos:{left:"5%",  top:"26%"}},
+    {id:'schachtel',   label:"d'Schachtel",       img:"https://i.postimg.cc/LJ8b80LM/8.png",  pos:{left:"70%", top:"86%"}}
+  ];
 
-  // Normalize to avoid apostrophe/diacritic mismatches
-  function norm(s){
-    return s
-      .toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-      .replace(/[\u2019\u2018\u0060]/g,"'")   // fancy quotes → '
-      .replace(/\s+/g," ")
-      .trim();
-  }
-  const setScore=v=>document.getElementById('score').textContent=v;
+  /* helpers */
+  const norm = s => s.toLowerCase()
+                     .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+                     .replace(/[\u2019\u2018\u0060]/g,"'")
+                     .replace(/\s+/g," ")
+                     .trim();
+
+  let score=0, challenge=false, secs=60, timer=null, dragged=null;
+  const setScore = v => document.getElementById('score').textContent=v;
   function show(msg, ok){
     const f=document.getElementById('feedback');
     f.textContent=msg; f.className='feedback '+(ok?'correct':'incorrect')+' show';
     setTimeout(()=>f.classList.remove('show'), 900);
   }
+
+  function buildUI(){
+    const words = document.getElementById('wordContainer');
+    const board = document.getElementById('board');
+
+    // build cards
+    words.innerHTML = "";
+    ITEMS.forEach(it=>{
+      const card = document.createElement('div');
+      card.className = 'word-card';
+      card.draggable = true;
+      card.dataset.id = it.id;
+      card.textContent = it.label;
+      words.appendChild(card);
+    });
+
+    // build drop zones
+    // remove previous zones first (keep SVG)
+    [...board.querySelectorAll('.drop-zone')].forEach(z=>z.remove());
+
+    ITEMS.forEach(it=>{
+      const z = document.createElement('div');
+      z.className='drop-zone';
+      z.style.left = it.pos.left; z.style.top = it.pos.top;
+      z.dataset.id = it.id; z.dataset.filled='0';
+
+      const img = document.createElement('img');
+      img.src = it.img;
+      img.alt = it.label;
+      img.onerror = ()=>{ img.style.display='none'; };
+      z.appendChild(img);
+
+      board.appendChild(z);
+    });
+
+    wireDnD();
+  }
+
   function resetBoard(){
     document.querySelectorAll('.word-card').forEach(c=>{
       c.style.display='inline-block'; c.classList.remove('correct-flash');
@@ -151,6 +190,7 @@
     });
     score=0; setScore(score);
   }
+
   function startChallenge(){
     if(timer) clearInterval(timer);
     challenge=true; secs=60; resetBoard();
@@ -165,23 +205,20 @@
     show('Fäerdeg! Score: '+score, true);
   }
 
-  document.addEventListener('DOMContentLoaded',()=>{
-    document.getElementById('challengeBtn').addEventListener('click', startChallenge);
-
-    const cards=document.querySelectorAll('.word-card');
-    const zones=document.querySelectorAll('.drop-zone');
+  function wireDnD(){
+    const cards = document.querySelectorAll('.word-card');
+    const zones = document.querySelectorAll('.drop-zone');
 
     cards.forEach(c=>{
       c.addEventListener('dragstart',e=>{
         dragged=c; c.classList.add('dragging');
-        e.dataTransfer.setData('text/plain', c.dataset.word);
+        e.dataTransfer.setData('text/plain', c.dataset.id);
         e.dataTransfer.effectAllowed='move';
       });
       c.addEventListener('dragend',()=>c.classList.remove('dragging'));
     });
 
     zones.forEach(z=>{
-      z.dataset.filled='0';
       z.addEventListener('dragover',e=>{ e.preventDefault(); z.classList.add('drag-over'); });
       z.addEventListener('dragleave',()=> z.classList.remove('drag-over'));
       z.addEventListener('drop',e=>{
@@ -189,27 +226,34 @@
         if(!dragged) return;
         if(z.dataset.filled==='1'){ show('Dës Plaz ass schonn fäerdeg.', false); dragged=null; return; }
 
-        const a=norm(dragged.dataset.word);
-        const b=norm(z.dataset.correct);
-
-        if(a===b){
+        if(dragged.dataset.id === z.dataset.id){
           score++; setScore(score);
           z.classList.add('correct'); z.dataset.filled='1';
           dragged.classList.add('correct-flash'); dragged.style.display='none';
-          const dw=document.createElement('div'); dw.className='dropped-word'; dw.textContent=dragged.textContent; z.appendChild(dw);
-          show('Richteg!', true);
 
-          if(document.querySelectorAll('.word-card[style*="display: none"]').length===cards.length){
-            setTimeout(()=> challenge? endChallenge(): show('Alles richteg! Super!', true), 400);
+          const dw=document.createElement('div');
+          dw.className='dropped-word';
+          dw.textContent = dragged.textContent;
+          z.appendChild(dw);
+
+          if(document.querySelectorAll('.word-card[style*="display: none"]').length === document.querySelectorAll('.word-card').length){
+            setTimeout(()=> challenge ? endChallenge() : show('Alles richteg! Super!', true), 400);
           }
-        }else{
+          show('Richteg!', true);
+        } else {
           show('Probéier nach eng Kéier!', false);
         }
         dragged=null;
       });
     });
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('challengeBtn').addEventListener('click', startChallenge);
+    buildUI();
   });
 </script>
 </body>
 </html>
+
 
