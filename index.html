@@ -16,12 +16,12 @@
       background:linear-gradient(135deg,#cde4f5 0%,#8ab6d9 50%,#4f7ca0 100%);
       height:100vh; display:grid; place-items:center; overflow:hidden;
     }
-    /* 16:9 stage that always fits without scroll */
+    /* 16:9 stage */
     .stage{
       position:relative;
       width:min(100vw, calc(100vh * 16 / 9));
       height:min(100vh, calc(100vw * 9 / 16));
-      background:#fff4; border-radius:16px; padding:1.2rem;
+      background:#ffffffb3; border-radius:16px; padding:1.2rem;
       box-shadow:0 12px 30px rgba(0,0,0,.15);
       overflow:hidden;
     }
@@ -29,12 +29,13 @@
     .title{font-size:clamp(20px,3vw,34px);color:#173c57}
     .controls{display:flex;gap:.6rem;align-items:center}
     .pill{background:#4f7ca0;color:#fff;padding:.4rem .9rem;border-radius:999px}
-    .btn{background:#8ab6d9;color:#fff;border:none;padding:.5rem .9rem;border-radius:999px;cursor:pointer;font-family:"Schoulschrëft Bold", Arial, sans-serif}
+    .btn{background:#8ab6d9;color:#fff;border:none;padding:.5rem .9rem;border-radius:999px;cursor:pointer}
     .btn.secondary{background:#4f7ca0}
 
     .game{
       display:grid; grid-template-rows:auto 1fr; gap:.6rem; height:calc(100% - 3.2rem);
     }
+
     /* WORD BUTTONS */
     .word-cards{
       display:grid; grid-auto-flow:column; grid-auto-columns:max-content; gap:.4rem;
@@ -43,11 +44,11 @@
     .word-card{
       background:#fff; color:#173c57; border:2px solid #000;
       padding:.35rem .6rem; border-radius:14px; user-select:none; cursor:grab; font-size:clamp(12px,1.5vw,18px);
-      transition:all 0.2s ease; display:inline-flex; align-items:center; gap:.4rem;
+      transition:all .2s ease; display:inline-flex; align-items:center; gap:.4rem;
     }
     .word-card:hover{background:#8ab6d9; color:#fff; transform:translateY(-2px)}
     .word-card.dragging{opacity:.7; transform:rotate(3deg); cursor:grabbing}
-    .word-card.correct-flash{background:#4f7ca0!important;color:#fff!important;animation:flash 800ms ease}
+    .word-card.correct-flash{background:#4f7ca0!important;color:#fff!important;animation:flash .8s ease}
     .play-icon{
       display:inline-grid; place-items:center; width:1.4em; height:1.4em; border-radius:999px;
       border:2px solid currentColor; font-size:0.9em; line-height:1; transform:translateY(1px);
@@ -71,8 +72,6 @@
         radial-gradient(800px 200px at 50% 30%, rgba(0,0,0,.35) 99%, transparent 100%) top/100% 45% no-repeat,
         linear-gradient(#000 0 0) bottom/100% 60% no-repeat;
     }
-    .board svg{position:absolute; inset:0; width:100%; height:100%; z-index:0; opacity:.25}
-
     .drop-zone{
       position:relative; z-index:1;
       display:flex;flex-direction:column; align-items:center; justify-content:center;
@@ -81,7 +80,7 @@
       min-height:120px; max-height:120px; overflow:hidden;
     }
     .drop-zone.drag-over{background:rgba(205,228,245,.5); transform:scale(1.05); border-color:#8ab6d9}
-    .drop-zone.correct{background:rgba(79,124,160,.3); animation:flash 800ms ease; border-color:#4f7ca0}
+    .drop-zone.correct{background:rgba(79,124,160,.3); animation:flash .8s ease; border-color:#4f7ca0}
     .drop-zone img{max-width:80px; max-height:80px; object-fit:contain; border-radius:8px}
     .dropped-word{
       background:#4f7ca0; color:#fff; padding:.3rem .5rem; border-radius:8px;
@@ -113,17 +112,7 @@
     <div class="game">
       <div class="word-cards" id="wordContainer"></div>
 
-      <div class="board" id="board">
-        <!-- a few background shapes (desks, board) -->
-        <svg viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
-          <rect x="350" y="120" width="900" height="320" rx="12" fill="#2b587a"/>
-          <rect x="340" y="430" width="920" height="20" rx="10" fill="#274f6f"/>
-          <rect x="650" y="500" width="300" height="150" rx="12" fill="#aac3d9"/>
-          <rect x="320" y="560" width="300" height="120" rx="12" fill="#aac3d9"/>
-          <rect x="980" y="560" width="300" height="120" rx="12" fill="#aac3d9"/>
-        </svg>
-        <!-- zones injected by JS -->
-      </div>
+      <div class="board" id="board"></div>
     </div>
 
     <div class="feedback" id="feedback"></div>
@@ -132,7 +121,6 @@
 <script>
   /* ======= AUDIO CONFIG ======= */
   const AUDIO_BASE = "https://github.com/albrechtclaire1007/p3schoulsaachen/raw/refs/heads/main/";
-  // Keys must match card .dataset.word (labels built below ensure that)
   const AUDIO_FILES = {
     "d'Buch": "BUCH.mp3",
     "de Bläistëft": "Bläistëft.mp3",
@@ -154,24 +142,20 @@
     "d'Bläistëftsfaarf": "blaischteftsfaarf.mp3"
   };
   let soundEnabled = true;
-
   function playWord(word) {
     if (!soundEnabled) return;
     const file = AUDIO_FILES[word];
     if (file) {
       const url = AUDIO_BASE + encodeURIComponent(file);
-      const audio = new Audio(url);
-      audio.play().catch(()=>{});
+      new Audio(url).play().catch(()=>{});
       return;
     }
     // TTS fallback
     if ("speechSynthesis" in window) {
       const u = new SpeechSynthesisUtterance(word);
-      const pick = (langs) => {
-        const vs = speechSynthesis.getVoices();
-        return vs.find(v => langs.some(l => v.lang && v.lang.toLowerCase().startsWith(l)));
-      };
-      const v = pick(["lb", "de-lu", "de"]);
+      const pick = (langs) => speechSynthesis.getVoices()
+        .find(v => langs.some(l => v.lang && v.lang.toLowerCase().startsWith(l)));
+      const v = pick(["lb","de-lu","de"]);
       if (v) u.voice = v;
       u.rate = 0.9;
       speechSynthesis.cancel();
@@ -179,35 +163,32 @@
     }
   }
 
-  /* ======= GAME DATA ======= */
-  // Build both cards & zones from the same array (IDs guarantee matching)
+  /* ======= ITEMS (single source of truth) ======= */
+  // id = matching key; label = card text & audio key; img = transparent image URL
   const ITEMS = [
-    {id:'blat',        label:"d'Blat Pabeier",    img:"https://i.postimg.cc/dLBfvK7B/13.png"},
-    {id:'lineal',      label:"de Lineal",         img:"https://i.postimg.cc/14DTCFsb/14.png"},
-    {id:'kraid',       label:"d'Kräid",           img:"https://i.postimg.cc/fVqgtjfS/15.png"},
-    {id:'scheier',     label:"d'Schéier",         img:"https://i.postimg.cc/HcXSNGDb/16.png"},
+    {id:'schoulsak',   label:"de Schoulsak",      img:"https://i.postimg.cc/bdTXYnWk/23.png"},
+    {id:'buch',        label:"d'Buch",            img:"https://i.postimg.cc/nMpTLDYK/temp-Image5-PKPI3.avif"},
     {id:'heft',        label:"d'Heft",            img:"https://i.postimg.cc/F1QmHNR5/17.png"},
+    {id:'classeur',    label:"de Classeur",       img:"https://i.postimg.cc/LnxMDPV2/20.png"},
+    {id:'schachtel',   label:"d'Schachtel",       img:"https://i.postimg.cc/LJ8b80LM/8.png"},
     {id:'blaisteftsf', label:"d'Bläistëftsfaarf", img:"https://i.postimg.cc/RJCYyM72/16.png"},
     {id:'tuschfaarf',  label:"d'Tuschfaarf",      img:"https://i.postimg.cc/bD9MmGtQ/15.png"},
-    {id:'classeur',    label:"de Classeur",       img:"https://i.postimg.cc/LnxMDPV2/20.png"},
-    {id:'gummi',       label:"de Gummi",          img:"https://i.postimg.cc/njf8rGnY/22.png"},
-    {id:'spetzer',     label:"de Spëtzer",        img:"https://i.postimg.cc/njf8rGnY/22.png"}, /* replace if you get a transparent one */
-    {id:'schoulsak',   label:"de Schoulsak",      img:"https://i.postimg.cc/bdTXYnWk/23.png"},  /* replace if you get a transparent one */
+    {id:'lineal',      label:"de Lineal",         img:"https://i.postimg.cc/14DTCFsb/14.png"},
+    {id:'gummi',       label:"de Gummi",          img:"https://i.postimg.cc/t1xQ9MG4/21.png"},
+    {id:'scheier',     label:"d'Schéier",         img:"https://i.postimg.cc/HcXSNGDb/16.png"},
+    {id:'pech',        label:"de Pech",           img:"https://i.postimg.cc/vcMKpmmT/7.png"},
+    {id:'tafel',       label:"d'Tafel",           img:"https://i.postimg.cc/GTLjgWhg/temp-Image-Oxa-Tk-S.avif"},
+    {id:'kraid',       label:"d'Kräid",           img:"https://i.postimg.cc/fVqgtjfS/15.png"},
+    {id:'blat',        label:"d'Blat Pabeier",    img:"https://i.postimg.cc/dLBfvK7B/13.png"},
     {id:'schwamp',     label:"de Schwamp",        img:"https://i.postimg.cc/kBX024PZ/24.png"},
     {id:'blaisteft',   label:"de Bläistëft",      img:"https://i.postimg.cc/tnGcRqtr/6.png"},
-    {id:'pech',        label:"de Pech",           img:"https://i.postimg.cc/vcMKpmmT/7.png"},
-    {id:'schachtel',   label:"d'Schachtel",       img:"https://i.postimg.cc/LJ8b80LM/8.png"},
-    {id:'buch',        label:"d'Buch",            img:"https://i.postimg.cc/nMpTLDYK/temp-Image5-PKPI3.avif"},
-    {id:'tafel',       label:"d'Tafel",           img:"https://i.postimg.cc/GTLjgWhg/temp-Image-Oxa-Tk-S.avif"}
+    {id:'spetzer',     label:"de Spëtzer",        img:"https://i.postimg.cc/njf8rGnY/22.png"},
+    {id:'leierin',     label:"d'Léierin",         img:"https://i.postimg.cc/qh0cgPnB/temp-Imagevl-Joig.avif"}
   ];
 
-  /* ======= HELPERS ======= */
-  const norm = s => s.toLowerCase()
-                     .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-                     .replace(/[\u2019\u2018\u0060]/g,"'")
-                     .replace(/\s+/g," ")
-                     .trim();
+  /* ======= STATE & HELPERS ======= */
   let score=0, challenge=false, secs=60, timer=null, dragged=null;
+
   const setScore = v => document.getElementById('score').textContent=v;
   function show(msg, ok){
     const f=document.getElementById('feedback');
@@ -231,10 +212,8 @@
       words.appendChild(card);
     });
 
-    // clear previous zones (keep SVG)
-    [...board.querySelectorAll('.drop-zone')].forEach(z=>z.remove());
-
-    // 18 items -> grid already 6x3; we just append in order
+    // build drop zones in a 6x3 grid
+    board.innerHTML = "";
     ITEMS.forEach(it=>{
       const z = document.createElement('div');
       z.className='drop-zone';
@@ -275,14 +254,12 @@
   }
 
   function wireAudio(){
-    // toggle
     const soundBtn = document.getElementById('soundToggle');
     soundBtn.addEventListener('click', ()=>{
       soundEnabled = !soundEnabled;
       soundBtn.textContent = soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
       soundBtn.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
     });
-    // click handlers on cards & mini play button
     document.querySelectorAll('.word-card').forEach(card=>{
       const icon = card.querySelector('.play-icon');
       icon.addEventListener('click', (e)=>{ e.stopPropagation(); playWord(card.dataset.word); });
@@ -311,6 +288,7 @@
         if(!dragged) return;
         if(z.dataset.filled==='1'){ show('Dës Plaz ass schonn fäerdeg.', false); dragged=null; return; }
 
+        // ID-based matching (robust)
         if(dragged.dataset.id === z.dataset.id){
           score++; setScore(score);
           z.classList.add('correct'); z.dataset.filled='1';
@@ -338,10 +316,10 @@
 
   document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('challengeBtn').addEventListener('click', startChallenge);
-    // Safari voices load async
     if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = ()=>{};
     buildUI();
   });
 </script>
 </body>
 </html>
+
