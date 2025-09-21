@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Schoulsaachen - Drag & Drop</title>
+  <title>Schoulsaachen – Drag & Drop</title>
   <style>
     @font-face{
       font-family:"Schoulschrëft Bold";
@@ -14,25 +14,28 @@
     body{
       font-family:"Schoulschrëft Bold", Arial, sans-serif;
       background:linear-gradient(135deg,#cde4f5 0%,#8ab6d9 50%,#4f7ca0 100%);
-      height:100svh; display:grid; place-items:center; overflow:hidden;
+      height:100vh; display:grid; place-items:center; overflow:hidden;
     }
     /* 16:9 stage that always fits without scroll */
     .stage{
       position:relative;
-      width:min(100vw, calc(100svh * 16 / 9));
-      height:min(100svh, calc(100vw * 9 / 16));
+      width:min(100vw, calc(100vh * 16 / 9));
+      height:min(100vh, calc(100vw * 9 / 16));
       background:#fff4; border-radius:16px; padding:1.2rem;
       box-shadow:0 12px 30px rgba(0,0,0,.15);
       overflow:hidden;
     }
     .header{display:flex;gap:.8rem;justify-content:space-between;align-items:center;margin-bottom:.8rem}
     .title{font-size:clamp(20px,3vw,34px);color:#173c57}
-    .pill{background:#4f7ca0;color:#fff;padding:.4rem .9rem;border-radius:999px}
     .controls{display:flex;gap:.6rem;align-items:center}
+    .pill{background:#4f7ca0;color:#fff;padding:.4rem .9rem;border-radius:999px}
     .btn{background:#8ab6d9;color:#fff;border:none;padding:.5rem .9rem;border-radius:999px;cursor:pointer;font-family:"Schoulschrëft Bold", Arial, sans-serif}
+    .btn.secondary{background:#4f7ca0}
+
     .game{
       display:grid; grid-template-rows:auto 1fr; gap:.6rem; height:calc(100% - 3.2rem);
     }
+    /* WORD BUTTONS */
     .word-cards{
       display:grid; grid-auto-flow:column; grid-auto-columns:max-content; gap:.4rem;
       overflow-x:auto; padding:.3rem;
@@ -40,41 +43,51 @@
     .word-card{
       background:#fff; color:#173c57; border:2px solid #000;
       padding:.35rem .6rem; border-radius:14px; user-select:none; cursor:grab; font-size:clamp(12px,1.5vw,18px);
-      transition:all 0.2s ease;
+      transition:all 0.2s ease; display:inline-flex; align-items:center; gap:.4rem;
     }
-    .word-card:hover{
-      background:#8ab6d9; color:#fff; transform:translateY(-2px);
-    }
+    .word-card:hover{background:#8ab6d9; color:#fff; transform:translateY(-2px)}
     .word-card.dragging{opacity:.7; transform:rotate(3deg); cursor:grabbing}
     .word-card.correct-flash{background:#4f7ca0!important;color:#fff!important;animation:flash 800ms ease}
+    .play-icon{
+      display:inline-grid; place-items:center; width:1.4em; height:1.4em; border-radius:999px;
+      border:2px solid currentColor; font-size:0.9em; line-height:1; transform:translateY(1px);
+      pointer-events:auto; cursor:pointer;
+    }
     @keyframes flash{50%{transform:scale(1.07)}}
+
+    /* BOARD */
     .board{
       position:relative; border-radius:12px; flex:1;
-      background:#f8f9fa;
       box-shadow:inset 0 0 0 2px rgba(23,60,87,.12);
-      display:grid;
-      grid-template-columns:repeat(6, 1fr);
-      grid-template-rows:repeat(3, 1fr);
-      gap:1rem;
-      padding:1rem;
+      background:#f8f9fa;
+      display:grid; grid-template-columns:repeat(6, 1fr); grid-template-rows:repeat(3, 1fr);
+      gap:1rem; padding:1rem;
     }
+    /* simple inline “classroom” background */
+    .board::before{
+      content:""; position:absolute; inset:0; z-index:0;
+      background:linear-gradient(180deg,#d7e8f6 0%, #a8c6df 100%);
+      mask:
+        radial-gradient(800px 200px at 50% 30%, rgba(0,0,0,.35) 99%, transparent 100%) top/100% 45% no-repeat,
+        linear-gradient(#000 0 0) bottom/100% 60% no-repeat;
+    }
+    .board svg{position:absolute; inset:0; width:100%; height:100%; z-index:0; opacity:.25}
+
     .drop-zone{
+      position:relative; z-index:1;
       display:flex;flex-direction:column; align-items:center; justify-content:center;
       gap:.25rem; border-radius:12px; transition:.15s transform, .15s background;
-      background:#fff;
-      border:2px solid #e9ecef;
-      padding:.5rem;
-      min-height:120px;
-      max-height:120px;
-      overflow:hidden;
+      background:#fff; border:2px solid #e9ecef; padding:.5rem;
+      min-height:120px; max-height:120px; overflow:hidden;
     }
     .drop-zone.drag-over{background:rgba(205,228,245,.5); transform:scale(1.05); border-color:#8ab6d9}
     .drop-zone.correct{background:rgba(79,124,160,.3); animation:flash 800ms ease; border-color:#4f7ca0}
     .drop-zone img{max-width:80px; max-height:80px; object-fit:contain; border-radius:8px}
-    .drop-zone .dropped-word{
-      background:#4f7ca0; color:#fff; padding:.3rem .5rem; border-radius:8px; font-size:clamp(10px,1.2vw,14px); margin-top:.25rem;
-      text-align:center;
+    .dropped-word{
+      background:#4f7ca0; color:#fff; padding:.3rem .5rem; border-radius:8px;
+      font-size:clamp(10px,1.2vw,14px); margin-top:.25rem; text-align:center;
     }
+
     .feedback{
       position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
       background:#fff; padding:1rem 2rem; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,.3);
@@ -92,230 +105,243 @@
       <div class="controls">
         <div class="pill">Score: <span id="score">0</span></div>
         <div class="pill" id="timer" style="display:none">Zäit: <span id="time">60</span>s</div>
-        <button class="btn" onclick="startChallenge()">60-Sekonnen Challenge</button>
+        <button class="btn" id="challengeBtn">60-Sekonnen</button>
+        <button class="btn secondary" id="soundToggle" aria-pressed="true">🔊 Sound: ON</button>
       </div>
     </div>
-    
+
     <div class="game">
-      <div class="word-cards" id="wordContainer">
-        <div class="word-card" draggable="true" data-word="d'Blat Pabeier">d'Blat Pabeier</div>
-        <div class="word-card" draggable="true" data-word="de Lineal">de Lineal</div>
-        <div class="word-card" draggable="true" data-word="d'Kräid">d'Kräid</div>
-        <div class="word-card" draggable="true" data-word="d'Schéier">d'Schéier</div>
-        <div class="word-card" draggable="true" data-word="d'Heft">d'Heft</div>
-        <div class="word-card" draggable="true" data-word="d'Bläistëftsfaarf">d'Bläistëftsfaarf</div>
-        <div class="word-card" draggable="true" data-word="d'Tuschfaarf">d'Tuschfaarf</div>
-        <div class="word-card" draggable="true" data-word="de Classeur">de Classeur</div>
-        <div class="word-card" draggable="true" data-word="de Gummi">de Gummi</div>
-        <div class="word-card" draggable="true" data-word="de Spëtzer">de Spëtzer</div>
-        <div class="word-card" draggable="true" data-word="de Schoulsak">de Schoulsak</div>
-        <div class="word-card" draggable="true" data-word="de Schwamp">de Schwamp</div>
-        <div class="word-card" draggable="true" data-word="de Bläistëft">de Bläistëft</div>
-        <div class="word-card" draggable="true" data-word="de Pech">de Pech</div>
-        <div class="word-card" draggable="true" data-word="d'Schachtel">d'Schachtel</div>
-        <div class="word-card" draggable="true" data-word="d'Buch">d'Buch</div>
-        <div class="word-card" draggable="true" data-word="d'Tafel">d'Tafel</div>
-      </div>
-      
-      <div class="board" id="dropZones">
-        <div class="drop-zone" data-correct="de Schoulsak">
-          <img src="https://i.postimg.cc/dLBfvK7B/13.png" alt="School bag" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="d'Buch">
-          <img src="https://i.postimg.cc/14DTCFsb/14.png" alt="Book" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="d'Heft">
-          <img src="https://i.postimg.cc/fVqgtjfS/15.png" alt="Notebook" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="de Classeur">
-          <img src="https://i.postimg.cc/HcXSNGDb/16.png" alt="Folder" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="d'Schachtel">
-          <img src="https://i.postimg.cc/F1QmHNR5/17.png" alt="Box" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="de Bläistëft">
-          <img src="https://i.postimg.cc/GTRMwMdV/18.png" alt="Pencil" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="de Spëtzer">
-          <img src="https://i.postimg.cc/xX7VDS7Z/19.png" alt="Sharpener" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="de Lineal">
-          <img src="https://i.postimg.cc/LnxMDPV2/20.png" alt="Ruler" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="d'Tuschfaarf">
-          <img src="https://i.postimg.cc/bD9MmGtQ/15.png" alt="Markers" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="de Gummi">
-          <img src="https://i.postimg.cc/njf8rGnY/22.png" alt="Eraser" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="d'Schéier">
-          <img src="https://i.postimg.cc/bdTXYnWk/23.png" alt="Scissors" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="de Pech">
-          <img src="https://i.postimg.cc/kBX024PZ/24.png" alt="Glue" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="d'Tafel">
-          <img src="https://i.postimg.cc/tnGcRqtr/6.png" alt="Blackboard" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="d'Kräid">
-          <img src="https://i.postimg.cc/vcMKpmmT/7.png" alt="Chalk" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="de Schwamp">
-          <img src="https://i.postimg.cc/LJ8b80LM/8.png" alt="Sponge" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="d'Bläistëftsfaarf">
-          <img src="https://i.postimg.cc/RJCYyM72/16.png" alt="Colored pencils" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
-        <div class="drop-zone" data-correct="d'Blat Pabeier">
-          <img src="https://postimg.cc/pmSnnphL" alt="Paper" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">
-        </div>
+      <div class="word-cards" id="wordContainer"></div>
+
+      <div class="board" id="board">
+        <!-- a few background shapes (desks, board) -->
+        <svg viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
+          <rect x="350" y="120" width="900" height="320" rx="12" fill="#2b587a"/>
+          <rect x="340" y="430" width="920" height="20" rx="10" fill="#274f6f"/>
+          <rect x="650" y="500" width="300" height="150" rx="12" fill="#aac3d9"/>
+          <rect x="320" y="560" width="300" height="120" rx="12" fill="#aac3d9"/>
+          <rect x="980" y="560" width="300" height="120" rx="12" fill="#aac3d9"/>
+        </svg>
+        <!-- zones injected by JS -->
       </div>
     </div>
+
+    <div class="feedback" id="feedback"></div>
   </div>
-    
-  <div class="feedback" id="feedback"></div>
-  
-  <script>
-    let score = 0;
-    let challengeMode = false;
-    let timeLeft = 60;
-    let challengeTimer = null;
-    let draggedElement = null;
-    
-    function showFeedback(message, isCorrect) {
-      const feedback = document.getElementById('feedback');
-      feedback.textContent = message;
-      feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'} show`;
-      
-      setTimeout(() => {
-        feedback.classList.remove('show');
-      }, 1500);
+
+<script>
+  /* ======= AUDIO CONFIG ======= */
+  const AUDIO_BASE = "https://github.com/albrechtclaire1007/p3schoulsaachen/raw/refs/heads/main/";
+  // Keys must match card .dataset.word (labels built below ensure that)
+  const AUDIO_FILES = {
+    "d'Buch": "BUCH.mp3",
+    "de Bläistëft": "Bläistëft.mp3",
+    "de Classeur": "Classeuren.mp3",
+    "de Gummi": "GUMMI.mp3",
+    "d'Heft": "HEFT.mp3",
+    "d'Kräid": "KRÄID.mp3",
+    "d'Léierin": "léierin.mp3",
+    "de Lineal": "LINEAL.mp3",
+    "d'Blat Pabeier": "PABEIER.mp3",
+    "de Pech": "pech.mp3",
+    "d'Schachtel": "SCHACHTEL.mp3",
+    "de Schwamp": "Schamm.mp3",
+    "d'Schéier": "SCHEIER.mp3",
+    "de Schoulsak": "Schoulsak.mp3",
+    "de Spëtzer": "spëtzer.mp3",
+    "d'Tafel": "tafel.mp3",
+    "d'Tuschfaarf": "tuschfaarf.mp3",
+    "d'Bläistëftsfaarf": "blaischteftsfaarf.mp3"
+  };
+  let soundEnabled = true;
+
+  function playWord(word) {
+    if (!soundEnabled) return;
+    const file = AUDIO_FILES[word];
+    if (file) {
+      const url = AUDIO_BASE + encodeURIComponent(file);
+      const audio = new Audio(url);
+      audio.play().catch(()=>{});
+      return;
     }
-    
-    function updateScore() {
-      document.getElementById('score').textContent = score;
+    // TTS fallback
+    if ("speechSynthesis" in window) {
+      const u = new SpeechSynthesisUtterance(word);
+      const pick = (langs) => {
+        const vs = speechSynthesis.getVoices();
+        return vs.find(v => langs.some(l => v.lang && v.lang.toLowerCase().startsWith(l)));
+      };
+      const v = pick(["lb", "de-lu", "de"]);
+      if (v) u.voice = v;
+      u.rate = 0.9;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
     }
-    
-    function startChallenge() {
-      challengeMode = true;
-      timeLeft = 60;
-      score = 0;
-      updateScore();
-      
-      resetGame();
-      
-      const timer = document.getElementById('timer');
-      timer.style.display = 'block';
-      
-      challengeTimer = setInterval(() => {
-        timeLeft--;
-        document.getElementById('time').textContent = timeLeft;
-        
-        if (timeLeft <= 0) {
-          endChallenge();
-        }
-      }, 1000);
-      
-      showFeedback('60-Sekonnen Challenge gestart!', true);
-    }
-    
-    function endChallenge() {
-      challengeMode = false;
-      clearInterval(challengeTimer);
-      document.getElementById('timer').style.display = 'none';
-      showFeedback(`Challenge eriwwer! Score: ${score}`, true);
-    }
-    
-    function resetGame() {
-      const wordCards = document.querySelectorAll('.word-card');
-      wordCards.forEach(card => {
-        card.style.display = 'block';
-        card.classList.remove('correct-flash');
+  }
+
+  /* ======= GAME DATA ======= */
+  // Build both cards & zones from the same array (IDs guarantee matching)
+  const ITEMS = [
+    {id:'blat',        label:"d'Blat Pabeier",    img:"https://i.postimg.cc/dLBfvK7B/13.png"},
+    {id:'lineal',      label:"de Lineal",         img:"https://i.postimg.cc/14DTCFsb/14.png"},
+    {id:'kraid',       label:"d'Kräid",           img:"https://i.postimg.cc/fVqgtjfS/15.png"},
+    {id:'scheier',     label:"d'Schéier",         img:"https://i.postimg.cc/HcXSNGDb/16.png"},
+    {id:'heft',        label:"d'Heft",            img:"https://i.postimg.cc/F1QmHNR5/17.png"},
+    {id:'blaisteftsf', label:"d'Bläistëftsfaarf", img:"https://i.postimg.cc/RJCYyM72/16.png"},
+    {id:'tuschfaarf',  label:"d'Tuschfaarf",      img:"https://i.postimg.cc/bD9MmGtQ/15.png"},
+    {id:'classeur',    label:"de Classeur",       img:"https://i.postimg.cc/LnxMDPV2/20.png"},
+    {id:'gummi',       label:"de Gummi",          img:"https://i.postimg.cc/njf8rGnY/22.png"},
+    {id:'spetzer',     label:"de Spëtzer",        img:"https://i.postimg.cc/njf8rGnY/22.png"}, /* replace if you get a transparent one */
+    {id:'schoulsak',   label:"de Schoulsak",      img:"https://i.postimg.cc/bdTXYnWk/23.png"},  /* replace if you get a transparent one */
+    {id:'schwamp',     label:"de Schwamp",        img:"https://i.postimg.cc/kBX024PZ/24.png"},
+    {id:'blaisteft',   label:"de Bläistëft",      img:"https://i.postimg.cc/tnGcRqtr/6.png"},
+    {id:'pech',        label:"de Pech",           img:"https://i.postimg.cc/vcMKpmmT/7.png"},
+    {id:'schachtel',   label:"d'Schachtel",       img:"https://i.postimg.cc/LJ8b80LM/8.png"},
+    {id:'buch',        label:"d'Buch",            img:"https://i.postimg.cc/nMpTLDYK/temp-Image5-PKPI3.avif"},
+    {id:'tafel',       label:"d'Tafel",           img:"https://i.postimg.cc/GTLjgWhg/temp-Image-Oxa-Tk-S.avif"}
+  ];
+
+  /* ======= HELPERS ======= */
+  const norm = s => s.toLowerCase()
+                     .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+                     .replace(/[\u2019\u2018\u0060]/g,"'")
+                     .replace(/\s+/g," ")
+                     .trim();
+  let score=0, challenge=false, secs=60, timer=null, dragged=null;
+  const setScore = v => document.getElementById('score').textContent=v;
+  function show(msg, ok){
+    const f=document.getElementById('feedback');
+    f.textContent=msg; f.className='feedback '+(ok?'correct':'incorrect')+' show';
+    setTimeout(()=>f.classList.remove('show'), 900);
+  }
+
+  function buildUI(){
+    const words = document.getElementById('wordContainer');
+    const board = document.getElementById('board');
+
+    // build word cards
+    words.innerHTML = "";
+    ITEMS.forEach(it=>{
+      const card = document.createElement('div');
+      card.className = 'word-card';
+      card.draggable = true;
+      card.dataset.id = it.id;
+      card.dataset.word = it.label;
+      card.innerHTML = `<span class="play-icon" title="Play">▶</span> ${it.label}`;
+      words.appendChild(card);
+    });
+
+    // clear previous zones (keep SVG)
+    [...board.querySelectorAll('.drop-zone')].forEach(z=>z.remove());
+
+    // 18 items -> grid already 6x3; we just append in order
+    ITEMS.forEach(it=>{
+      const z = document.createElement('div');
+      z.className='drop-zone';
+      z.dataset.id = it.id; z.dataset.filled='0';
+      const img = document.createElement('img');
+      img.src = it.img; img.alt = it.label; img.onerror = ()=>{ img.style.display='none'; };
+      z.appendChild(img);
+      board.appendChild(z);
+    });
+
+    wireDnD();
+    wireAudio();
+  }
+
+  function resetBoard(){
+    document.querySelectorAll('.word-card').forEach(c=>{
+      c.style.display='inline-flex'; c.classList.remove('correct-flash');
+    });
+    document.querySelectorAll('.drop-zone').forEach(z=>{
+      z.classList.remove('correct'); z.dataset.filled='0';
+      const dw=z.querySelector('.dropped-word'); if(dw) dw.remove();
+    });
+    score=0; setScore(score);
+  }
+
+  function startChallenge(){
+    if(timer) clearInterval(timer);
+    challenge=true; secs=60; resetBoard();
+    document.getElementById('timer').style.display='inline-block';
+    document.getElementById('time').textContent=secs;
+    timer=setInterval(()=>{ secs--; document.getElementById('time').textContent=secs; if(secs<=0) endChallenge(); },1000);
+    show('60-Sekonnen Challenge!', true);
+  }
+  function endChallenge(){
+    challenge=false; if(timer) clearInterval(timer);
+    document.getElementById('timer').style.display='none';
+    show('Fäerdeg! Score: '+score, true);
+  }
+
+  function wireAudio(){
+    // toggle
+    const soundBtn = document.getElementById('soundToggle');
+    soundBtn.addEventListener('click', ()=>{
+      soundEnabled = !soundEnabled;
+      soundBtn.textContent = soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+      soundBtn.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
+    });
+    // click handlers on cards & mini play button
+    document.querySelectorAll('.word-card').forEach(card=>{
+      const icon = card.querySelector('.play-icon');
+      icon.addEventListener('click', (e)=>{ e.stopPropagation(); playWord(card.dataset.word); });
+      card.addEventListener('click', ()=>{ if(!card.classList.contains('dragging')) playWord(card.dataset.word); });
+    });
+  }
+
+  function wireDnD(){
+    const cards = document.querySelectorAll('.word-card');
+    const zones = document.querySelectorAll('.drop-zone');
+
+    cards.forEach(c=>{
+      c.addEventListener('dragstart',e=>{
+        dragged=c; c.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', c.dataset.id);
+        e.dataTransfer.effectAllowed='move';
       });
-      
-      const dropZones = document.querySelectorAll('.drop-zone');
-      dropZones.forEach(zone => {
-        const droppedWord = zone.querySelector('.dropped-word');
-        if (droppedWord) {
-          droppedWord.remove();
-        }
-        zone.classList.remove('correct');
-      });
-    }
-    
-    document.addEventListener('DOMContentLoaded', function() {
-      const wordCards = document.querySelectorAll('.word-card');
-      const dropZones = document.querySelectorAll('.drop-zone');
-      
-      wordCards.forEach(card => {
-        card.addEventListener('dragstart', function(e) {
-          draggedElement = this;
-          this.classList.add('dragging');
-          e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/html', this.outerHTML);
-        });
-        
-        card.addEventListener('dragend', function(e) {
-          this.classList.remove('dragging');
-        });
-      });
-      
-      dropZones.forEach(zone => {
-        zone.addEventListener('dragover', function(e) {
-          e.preventDefault();
-          e.dataTransfer.dropEffect = 'move';
-          this.classList.add('drag-over');
-        });
-        
-        zone.addEventListener('dragleave', function(e) {
-          this.classList.remove('drag-over');
-        });
-        
-        zone.addEventListener('drop', function(e) {
-          e.preventDefault();
-          this.classList.remove('drag-over');
-          
-          if (draggedElement) {
-            const draggedWord = draggedElement.dataset.word;
-            const correctWord = this.dataset.correct;
-            
-            if (draggedWord === correctWord) {
-              score++;
-              updateScore();
-              
-              draggedElement.classList.add('correct-flash');
-              this.classList.add('correct');
-              
-              const droppedWord = document.createElement('div');
-              droppedWord.className = 'dropped-word';
-              droppedWord.textContent = draggedWord;
-              this.appendChild(droppedWord);
-              
-              draggedElement.style.display = 'none';
-              
-              showFeedback('Richteg!', true);
-              
-              const visibleCards = document.querySelectorAll('.word-card[style*="display: none"]');
-              if (visibleCards.length === wordCards.length) {
-                setTimeout(() => {
-                  if (challengeMode) {
-                    endChallenge();
-                  } else {
-                    showFeedback('Congratulatiounen! Alles richteg!', true);
-                  }
-                }, 1000);
-              }
-              
-            } else {
-              showFeedback('Probéier nach eng Kéier!', false);
-            }
-            
-            draggedElement = null;
+      c.addEventListener('dragend',()=>c.classList.remove('dragging'));
+    });
+
+    zones.forEach(z=>{
+      z.addEventListener('dragover',e=>{ e.preventDefault(); z.classList.add('drag-over'); });
+      z.addEventListener('dragleave',()=> z.classList.remove('drag-over'));
+      z.addEventListener('drop',e=>{
+        e.preventDefault(); z.classList.remove('drag-over');
+        if(!dragged) return;
+        if(z.dataset.filled==='1'){ show('Dës Plaz ass schonn fäerdeg.', false); dragged=null; return; }
+
+        if(dragged.dataset.id === z.dataset.id){
+          score++; setScore(score);
+          z.classList.add('correct'); z.dataset.filled='1';
+          dragged.classList.add('correct-flash'); dragged.style.display='none';
+
+          const dw=document.createElement('div');
+          dw.className='dropped-word';
+          dw.textContent = dragged.dataset.word;
+          z.appendChild(dw);
+
+          show('Richteg!', true);
+
+          const total = document.querySelectorAll('.word-card').length;
+          const hidden = document.querySelectorAll('.word-card[style*="display: none"]').length;
+          if(hidden === total){
+            setTimeout(()=> challenge ? endChallenge() : show('Alles richteg! Super!', true), 400);
           }
-        });
+        } else {
+          show('Probéier nach eng Kéier!', false);
+        }
+        dragged=null;
       });
     });
-  </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9821fac875761bec',t:'MTc1ODM3ODE5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html>
+  }
 
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('challengeBtn').addEventListener('click', startChallenge);
+    // Safari voices load async
+    if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = ()=>{};
+    buildUI();
+  });
+</script>
+</body>
+</html>
