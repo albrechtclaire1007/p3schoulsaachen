@@ -16,7 +16,6 @@
       background:linear-gradient(135deg,#cde4f5 0%,#8ab6d9 50%,#4f7ca0 100%);
       height:100vh; display:grid; place-items:center; overflow:hidden;
     }
-    /* 16:9 stage */
     .stage{
       position:relative;
       width:min(100vw, calc(100vh * 16 / 9));
@@ -32,11 +31,8 @@
     .btn{background:#8ab6d9;color:#fff;border:none;padding:.5rem .9rem;border-radius:999px;cursor:pointer}
     .btn.secondary{background:#4f7ca0}
 
-    .game{
-      display:grid; grid-template-rows:auto 1fr; gap:.6rem; height:calc(100% - 3.2rem);
-    }
+    .game{display:grid; grid-template-rows:auto 1fr; gap:.6rem; height:calc(100% - 3.2rem)}
 
-    /* WORD BUTTONS */
     .word-cards{
       display:grid; grid-auto-flow:column; grid-auto-columns:max-content; gap:.4rem;
       overflow-x:auto; padding:.3rem;
@@ -47,7 +43,7 @@
       transition:all .2s ease; display:inline-flex; align-items:center; gap:.4rem;
     }
     .word-card:hover{background:#8ab6d9; color:#fff; transform:translateY(-2px)}
-    .word-card.dragging{opacity:.7; transform:rotate(3deg); cursor:grabbing}
+    .word-card.dragging{opacity:.7; transform:rotate(3deg)}
     .word-card.correct-flash{background:#4f7ca0!important;color:#fff!important;animation:flash .8s ease}
     .play-icon{
       display:inline-grid; place-items:center; width:1.4em; height:1.4em; border-radius:999px;
@@ -56,7 +52,6 @@
     }
     @keyframes flash{50%{transform:scale(1.07)}}
 
-    /* BOARD */
     .board{
       position:relative; border-radius:12px; flex:1;
       box-shadow:inset 0 0 0 2px rgba(23,60,87,.12);
@@ -64,7 +59,6 @@
       display:grid; grid-template-columns:repeat(6, 1fr); grid-template-rows:repeat(3, 1fr);
       gap:1rem; padding:1rem;
     }
-    /* simple inline “classroom” background */
     .board::before{
       content:""; position:absolute; inset:0; z-index:0;
       background:linear-gradient(180deg,#d7e8f6 0%, #a8c6df 100%);
@@ -111,7 +105,6 @@
 
     <div class="game">
       <div class="word-cards" id="wordContainer"></div>
-
       <div class="board" id="board"></div>
     </div>
 
@@ -119,7 +112,7 @@
   </div>
 
 <script>
-  /* ======= AUDIO CONFIG ======= */
+  /* ============ AUDIO ============ */
   const AUDIO_BASE = "https://github.com/albrechtclaire1007/p3schoulsaachen/raw/refs/heads/main/";
   const AUDIO_FILES = {
     "d'Buch": "BUCH.mp3",
@@ -145,26 +138,20 @@
   function playWord(word) {
     if (!soundEnabled) return;
     const file = AUDIO_FILES[word];
-    if (file) {
-      const url = AUDIO_BASE + encodeURIComponent(file);
-      new Audio(url).play().catch(()=>{});
-      return;
-    }
+    if (file) { new Audio(AUDIO_BASE + encodeURIComponent(file)).play().catch(()=>{}); return; }
     // TTS fallback
     if ("speechSynthesis" in window) {
       const u = new SpeechSynthesisUtterance(word);
-      const pick = (langs) => speechSynthesis.getVoices()
-        .find(v => langs.some(l => v.lang && v.lang.toLowerCase().startsWith(l)));
-      const v = pick(["lb","de-lu","de"]);
-      if (v) u.voice = v;
+      const voice = speechSynthesis.getVoices()
+        .find(v => ["lb","de-lu","de"].some(p => v.lang && v.lang.toLowerCase().startsWith(p)));
+      if (voice) u.voice = voice;
       u.rate = 0.9;
       speechSynthesis.cancel();
       speechSynthesis.speak(u);
     }
   }
 
-  /* ======= ITEMS (single source of truth) ======= */
-  // id = matching key; label = card text & audio key; img = transparent image URL
+  /* ============ SINGLE SOURCE OF TRUTH ============ */
   const ITEMS = [
     {id:'schoulsak',   label:"de Schoulsak",      img:"https://i.postimg.cc/bdTXYnWk/23.png"},
     {id:'buch',        label:"d'Buch",            img:"https://i.postimg.cc/nMpTLDYK/temp-Image5-PKPI3.avif"},
@@ -186,9 +173,14 @@
     {id:'leierin',     label:"d'Léierin",         img:"https://i.postimg.cc/qh0cgPnB/temp-Imagevl-Joig.avif"}
   ];
 
-  /* ======= STATE & HELPERS ======= */
-  let score=0, challenge=false, secs=60, timer=null, dragged=null;
+  /* ============ HELPERS ============ */
+  const norm = s => s.toLowerCase()
+                     .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+                     .replace(/[\u2019\u2018\u0060]/g,"'")
+                     .replace(/\s+/g," ")
+                     .trim();
 
+  let score=0, challenge=false, secs=60, timer=null, dragged=null;
   const setScore = v => document.getElementById('score').textContent=v;
   function show(msg, ok){
     const f=document.getElementById('feedback');
@@ -212,12 +204,14 @@
       words.appendChild(card);
     });
 
-    // build drop zones in a 6x3 grid
+    // build drop zones (6×3 grid)
     board.innerHTML = "";
     ITEMS.forEach(it=>{
       const z = document.createElement('div');
       z.className='drop-zone';
-      z.dataset.id = it.id; z.dataset.filled='0';
+      z.dataset.id = it.id;           // ID for matching
+      z.dataset.correct = it.label;   // text fallback
+      z.dataset.filled='0';
       const img = document.createElement('img');
       img.src = it.img; img.alt = it.label; img.onerror = ()=>{ img.style.display='none'; };
       z.appendChild(img);
@@ -288,8 +282,10 @@
         if(!dragged) return;
         if(z.dataset.filled==='1'){ show('Dës Plaz ass schonn fäerdeg.', false); dragged=null; return; }
 
-        // ID-based matching (robust)
-        if(dragged.dataset.id === z.dataset.id){
+        // ✅ robust match: ID or normalized label
+        const idMatch  = (dragged.dataset.id === z.dataset.id);
+        const textMatch = (norm(dragged.dataset.word) === norm(z.dataset.correct));
+        if(idMatch || textMatch){
           score++; setScore(score);
           z.classList.add('correct'); z.dataset.filled='1';
           dragged.classList.add('correct-flash'); dragged.style.display='none';
@@ -322,4 +318,3 @@
 </script>
 </body>
 </html>
-
