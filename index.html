@@ -1,86 +1,183 @@
 <!DOCTYPE html>
 <html lang="lb">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>P3 Schoulsaachen – Multi Games</title>
-  <style>
-    @font-face{
-      font-family:"Schoulschrëft Bold";
-      src:url("https://github.com/albrechtclaire1007/schoulschreft/raw/refs/heads/main/schoulschreft_bold%5B2%5D.TTF") format("truetype");
-      font-weight:bold;font-display:swap;
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      font-family:"Schoulschrëft Bold", Arial, sans-serif;
-      background:linear-gradient(135deg,#cde4f5 0%,#8ab6d9 50%,#4f7ca0 100%);
-      height:100vh; display:grid; place-items:center; overflow:hidden;
-    }
-    .stage{
-      position:relative;
-      width:min(100vw, calc(100vh * 16 / 9));
-      height:min(100vh, calc(100vw * 9 / 16));
-      background:#ffffffb3; border-radius:16px; padding:1rem;
-      box-shadow:0 12px 30px rgba(0,0,0,.15);
-      display:flex; flex-direction:column; gap:.6rem; overflow:hidden;
-    }
-    .header{display:flex;gap:.6rem;justify-content:space-between;align-items:center}
-    .title{font-size:clamp(18px,2.8vw,32px);color:#173c57}
-    .pill{background:#4f7ca0;color:#fff;padding:.3rem .8rem;border-radius:999px}
-    .btn{background:#8ab6d9;color:#fff;border:none;padding:.45rem .85rem;border-radius:999px;cursor:pointer}
-    .btn.secondary{background:#4f7ca0}
-    .tabs{display:flex;gap:.4rem;flex-wrap:wrap}
-    .tab{background:#d6e7f6;color:#173c57;border:none;padding:.4rem .7rem;border-radius:10px;cursor:pointer}
-    .tab.active{background:#4f7ca0;color:#fff}
-    .gamewrap{position:relative; flex:1; background:#f8f9fa; border-radius:12px; padding:.8rem; overflow:auto}
-    .row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
-    .grid{display:grid; gap:.6rem}
-    .card{background:#fff;border:2px solid #e9ecef;border-radius:12px;padding:.5rem}
-    .word-card{border:2px solid #000; border-radius:14px; padding:.35rem .6rem; display:inline-flex; gap:.4rem; align-items:center; cursor:grab}
-    .play-icon{display:inline-grid; place-items:center; width:1.4em; height:1.4em; border-radius:999px; border:2px solid currentColor; font-size:.9em; line-height:1}
-    .drop{min-height:80px; display:grid; place-items:center; border:2px dashed #8ab6d9; border-radius:12px; padding:.6rem}
-    .drop.over{background:#e9f4ff}
-    .pairgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:.6rem}
-    .audiocard{display:flex; align-items:center; justify-content:center; gap:.5rem; min-height:64px; cursor:pointer}
-    .imgbox{display:grid; place-items:center}
-    .imgbox img{max-width:120px; max-height:120px; object-fit:contain}
-    .letters{display:flex; gap:.4rem; flex-wrap:wrap}
-    .letter{background:#fff;border:2px solid #173c57;border-radius:10px;padding:.3rem .5rem; cursor:grab; min-width:1.8rem; text-align:center}
-    .slots{display:flex; gap:.3rem; flex-wrap:wrap; padding:.3rem}
-    .slot{min-width:1.8rem; min-height:2.2rem; border-bottom:3px solid #173c57; display:grid; place-items:center}
-    .choices{display:flex; gap:.5rem; flex-wrap:wrap}
-    .choice{background:#fff;border:2px solid #173c57;border-radius:10px;padding:.35rem .65rem; cursor:pointer}
-    .big{font-size:clamp(18px,2.4vw,28px)}
-    .feedback{
-      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-      background:#fff; padding:1rem 2rem; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,.3);
-      font-size:clamp(18px,2.2vw,24px); z-index:1000; opacity:0; pointer-events:none; transition:.3s all;
-    }
-    .feedback.show{opacity:1; transform:translate(-50%,-50%) scale(1.05)}
-    .ok{color:#4f7ca0; border:3px solid #4f7ca0}
-    .bad{color:#dc3545; border:3px solid #dc3545}
-    .toolbar{display:flex; gap:.5rem; align-items:center; flex-wrap:wrap}
-    .colorchip{width:28px;height:28px;border-radius:8px;border:2px solid #173c57}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Schoulsaachen</title>
+<style>
+  /* Font */
+  @font-face{
+    font-family:'Schoulschrëft';
+    src:url('https://raw.githubusercontent.com/albrechtclaire1007/schoulschreft/main/schoulschreft_bold%5B2%5D.TTF') format('truetype');
+    font-weight:bold; font-style:normal; font-display:swap;
+  }
+
+  :root{
+    /* P3 blue palette to keep your series coherence while matching the P1 layout */
+    --blue-mid:#8ab6d9; --blue-light:#cfe4f6; --blue-dark:#4f7ca0;
+    --ink:#173c57; --white:#fff; --bad:#ffcccc; --ok:#b7f0c8;
+    --border:3px;
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; outline:none;}
+  html,body{height:100%; margin:0; background:linear-gradient(135deg,var(--blue-mid),var(--blue-light)); color:var(--ink); font-family:'Schoulschrëft', Arial, sans-serif;}
+
+  /* Top bar (like P1) */
+  .top{
+    position:sticky; top:8px; z-index:10; display:flex; gap:10px; align-items:center; justify-content:center;
+    background:var(--white); border:var(--border) solid var(--blue-dark); border-radius:18px;
+    padding:.35rem .6rem; margin:10px auto; width:fit-content;
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+  }
+  .iconBtn{
+    border:var(--border) solid var(--ink); background:var(--white); color:var(--ink);
+    padding:.25rem .7rem; border-radius:14px; cursor:pointer; font-size:1.4rem; line-height:1;
+    min-width:2.4rem; display:grid; place-items:center;
+  }
+  .iconBtn:active{ transform:scale(.98); }
+  .flow{opacity:.9; font-size:1rem; padding:0 .4rem; min-width:10ch; text-align:center;}
+  .sep{width:1px; height:20px; background:#ddd; margin:0 6px;}
+  .toggle{
+    border:var(--border) solid var(--ink); background:var(--white); color:var(--ink);
+    padding:.25rem .6rem; border-radius:14px; cursor:pointer; font-size:1rem;
+  }
+  .hidden{display:none !important;}
+
+  .wrap{min-height:100%; display:flex; flex-direction:column; align-items:center; gap:2.5vmin; padding:2.5vmin 3vmin 4vmin;}
+  h1{margin:.2rem 0 0; text-align:center; font-size:clamp(2rem,6vmin,4.2rem); color:var(--ink);}
+
+  /* Generic grid / tokens (P1 style) */
+  .grid{
+    width:95vw; max-width:2000px; display:grid; gap:2vmin;
+    grid-template-columns: repeat(auto-fill, minmax(14vmin, 1fr));
+    align-items:stretch;
+  }
+  .imgToken{
+    background:var(--white); border:6px solid var(--blue-mid); border-radius:22px;
+    display:grid; place-items:center; aspect-ratio:1/1; cursor:pointer;
+    transition:transform .1s ease, border-color .15s ease, filter .15s ease, background .15s ease;
+    box-shadow:0 10px 26px rgba(0,0,0,.08);
+  }
+  .imgToken:active{ transform:scale(.97); }
+  .imgToken img{ width:90%; height:90%; object-fit:contain; }
+
+  .btn{
+    border:var(--border) solid var(--ink); background:var(--white); color:var(--ink);
+    padding:.45rem .85rem; border-radius:14px; cursor:pointer; font-size:1.05rem;
+  }
+  .btn:active{ transform:scale(.98); }
+
+  .flash-good{ background:var(--ok) !important; border-color:var(--ok) !important; }
+  .flash-bad{ background:var(--bad) !important; border-color:var(--bad) !important; }
+
+  /* Big centered image box (for G3, also reused vertically) */
+  .bigBox{
+    width:min(70vmin,90%); aspect-ratio:1/1; background:#fff;
+    border:12px solid var(--blue-mid); border-radius:40px; display:grid; place-items:center;
+    position:relative; cursor:pointer;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+    transition:transform .12s ease;
+  }
+  .bigBox:active{ transform:scale(.98); }
+  .bigBox img{ width:85%; height:85%; object-fit:contain; }
+  .fade{ animation:fadeIn .35s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:scale(.9)} to{opacity:1; transform:scale(1)} }
+
+  /* Spelling (G2) */
+  .slots{ display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; padding:.4rem; }
+  .slot{
+    min-width:3.2rem; min-height:4.0rem; border-bottom:6px solid var(--ink);
+    display:grid; place-items:center; font-size:clamp(2rem,5.8vmin,3.2rem);
+  }
+  .letters{ display:flex; gap:.5rem; flex-wrap:wrap; justify-content:center; }
+  .letter{
+    background:#fff; border:4px solid var(--ink); border-radius:12px; padding:.35rem .55rem;
+    cursor:pointer; font-size:clamp(2rem,5.8vmin,3.2rem); min-width:3.2rem; text-align:center;
+  }
+
+  /* Choices line (articles/plurals) */
+  .choices{ display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; }
+  .choice{ background:#fff; border:4px solid var(--ink); border-radius:12px; padding:.35rem .7rem; cursor:pointer; font-size:clamp(1.6rem,4.6vmin,2.2rem); }
+
+  /* G5 inline tokens */
+  .inlineRow{ display:flex; align-items:center; justify-content:center; gap:min(2.4vmin,18px); flex-wrap:wrap; }
+  .numSq, .colSq{
+    display:grid; place-items:center; width:min(16vmin,160px); aspect-ratio:1/1;
+    border:8px solid var(--blue-mid); border-radius:18px; background:#fff; font-size:clamp(2rem,5vmin,3rem);
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+  }
+  .miniImg{
+    display:grid; place-items:center; width:min(22vmin,240px); aspect-ratio:1/1;
+    border:8px solid var(--blue-mid); border-radius:18px; background:#fff;
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
+  }
+  .miniImg img{ width:85%; height:85%; object-fit:contain; }
+  .verb{
+    display:inline-block; padding:.2rem .8rem; border:6px solid var(--blue-mid); border-radius:16px; background:#fff;
+    font-size:clamp(2rem,5vmin,3rem);
+  }
+</style>
 </head>
 <body>
-  <div class="stage">
-    <div class="header">
-      <div class="row">
-        <h1 class="title">Schoulsaachen – Mini Games</h1>
-        <div class="pill">Score: <span id="score">0</span></div>
-        <button class="btn secondary" id="soundToggle" aria-pressed="true">🔊 Sound: ON</button>
-      </div>
-      <div class="tabs" id="tabs"></div>
-    </div>
 
-    <div class="gamewrap" id="gamewrap"></div>
+<!-- Top nav (P1-style) -->
+<div class="top">
+  <button class="iconBtn" id="prev">◀</button>
+  <span class="flow" id="flowLabel">1. Spill</span>
+  <button class="iconBtn" id="next">▶</button>
+  <span class="sep"></span>
+  <button class="toggle" id="soundToggle">Toun: Un</button>
+</div>
 
-    <div class="feedback" id="fb"></div>
+<!-- G1: Lauschter a klick op dat richtegt Bild (autoplay on target, no per-card buttons) -->
+<section class="wrap" id="g1">
+  <h1>Lauschter a klick op dat richtegt Bild</h1>
+  <div class="grid" id="grid1"></div>
+  <div><button class="btn" id="play1">Toun nach eng Kéier</button></div>
+</section>
+
+<!-- G2: Schreif d’Wuert – no word shown; image → slots → letters -->
+<section class="wrap hidden" id="g2">
+  <h1>Schreif d’Wuert</h1>
+  <div class="bigBox" style="cursor:default;"><img id="spellImg" alt=""></div>
+  <div class="slots" id="spellSlots"></div>
+  <div class="letters" id="spellBank"></div>
+  <div><button class="btn" id="spellNext">Weider</button></div>
+</section>
+
+<!-- G3: Artikel wielen – centered, image on top, choices under -->
+<section class="wrap hidden" id="g3">
+  <h1>Wiel den Artikel</h1>
+  <div class="bigBox" style="cursor:default;"><img id="artImg" alt=""></div>
+  <div style="font-size:clamp(2rem,5.6vmin,3.2rem); text-align:center; margin-top:10px;" id="artWord">_____ Numm</div>
+  <div class="choices" id="artChoices"></div>
+  <div><button class="btn" id="artNext">Weider</button></div>
+</section>
+
+<!-- G4: Plural – big word centered; generates distractors (-en/-er/-s + vowel tweaks) -->
+<section class="wrap hidden" id="g4">
+  <h1>Plural</h1>
+  <div style="font-size:clamp(2.4rem,6.2vmin,3.6rem); text-align:center;" id="pluWord">Wuert</div>
+  <div class="choices" id="pluChoices"></div>
+  <div><button class="btn" id="pluNext">Weider</button></div>
+</section>
+
+<!-- G5: Number square – image – sinn – colour square (no full sentence text) -->
+<section class="wrap hidden" id="g5">
+  <h1>Lies de Saz</h1>
+  <div class="inlineRow" id="sentRow">
+    <div class="numSq" id="sentNum">3</div>
+    <div class="miniImg"><img id="sentImg" alt=""></div>
+    <span class="verb">sinn</span>
+    <div class="colSq" id="sentCol"></div>
   </div>
+  <div><button class="btn" id="sentNext">Neie Saz</button></div>
+</section>
+
+<audio id="speaker" preload="auto"></audio>
 
 <script>
-/* ========= DATA ========= */
+/* ---------- DATA (from your previous P3 code) ---------- */
 const AUDIO_BASE = "https://github.com/albrechtclaire1007/p3schoulsaachen/raw/refs/heads/main/";
 const AUDIO_FILES = {
   "d'Buch": "BUCH.mp3",
@@ -102,8 +199,6 @@ const AUDIO_FILES = {
   "d'Tuschfaarf": "tuschfaarf.mp3",
   "d'Bläistëftsfaarf": "blaischteftsfaarf.mp3"
 };
-
-// Core item list (reusing your images)
 const ITEMS = [
   {id:'schoulsak',   label:"de Schoulsak",      img:"https://i.postimg.cc/bdTXYnWk/23.png"},
   {id:'buch',        label:"d'Buch",            img:"https://i.postimg.cc/nMpTLDYK/temp-Image5-PKPI3.avif"},
@@ -125,18 +220,14 @@ const ITEMS = [
   {id:'leierin',     label:"d'Léierin",         img:"https://i.postimg.cc/qh0cgPnB/temp-Imagevl-Joig.avif"}
 ];
 
-/* ========= OPTIONAL: Articles & Plurals (fill from your sheet) =========
-   - If article is missing, "Article" game will skip that item.
-   - If plural is missing, "Plural" and "Lies de Saz" (plural sentence) will skip that item.
-   Paste your definitive values here.
-*/
+/* Optional LEXICON: add confirmed plurals to enable G4 + improve G5 choice pool */
 const LEXICON = {
-  // id: { article: "de|den|d'", noun:"...", plural:"..." }
-  classeur: { article:"de",  noun:"Classeur", plural:"Classeuren" }, // ✅ audio filename hints this is correct
-  // TODO: fill the rest (examples/guesses removed to avoid wrong forms)
+  // id: { article:"de|den|d'", noun:"...", plural:"..." }
+  classeur: { article:"de", noun:"Classeur", plural:"Classeuren" },
+  // Fill more when you have the sheet; missing ones are skipped in G4 on purpose.
 };
 
-/* ========= Colours & Numbers for sentence generator ========= */
+/* Colours & numbers for G5 */
 const COLOURS = [
   {name:"blo",  hex:"#4C78A8"},
   {name:"rout", hex:"#E45756"},
@@ -147,288 +238,262 @@ const COLOURS = [
   {name:"mof",  hex:"#7E6ACE"},
   {name:"schwaarz", hex:"#2D2D2D"}
 ];
-const NUMBERS = [2,3,4,5,6,7,8,9,10]; // “sinn” requires plural
+const NUMBERS = [2,3,4,5,6,7,8,9,10];
 
-/* ========= Helpers ========= */
-const $ = s=>document.querySelector(s);
-const el = (tag, cls, html)=>{ const x=document.createElement(tag); if(cls) x.className=cls; if(html!=null) x.innerHTML=html; return x; };
-const norm = s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[\u2019\u2018\u0060]/g,"'").replace(/\s+/g," ").trim();
-
-let soundEnabled = true;
-let score = 0;
-function setScore(v){ score=v; $('#score').textContent=v; }
-function fb(msg, ok=true){ const f=$('#fb'); f.textContent=msg; f.className='feedback '+(ok?'ok':'bad')+' show'; setTimeout(()=>f.classList.remove('show'), 900); }
-
-function playWordByLabel(label){
-  if(!soundEnabled) return;
-  const file = AUDIO_FILES[label];
-  if(file){ new Audio(AUDIO_BASE + encodeURIComponent(file)).play().catch(()=>{}); return; }
-  if("speechSynthesis" in window){
-    const u=new SpeechSynthesisUtterance(label);
-    const v=speechSynthesis.getVoices().find(v=>["lb","de-lu","de"].some(p=>v.lang && v.lang.toLowerCase().startsWith(p)));
-    if(v) u.voice=v; u.rate=.9; speechSynthesis.cancel(); speechSynthesis.speak(u);
-  }
+/* ---------- UTIL ---------- */
+const speaker = document.getElementById('speaker');
+let soundOn = true;
+function playLabel(label){
+  if(!soundOn) return;
+  const f = AUDIO_FILES[label];
+  if(f){ playSound(AUDIO_BASE + encodeURIComponent(f)); }
 }
-function speak(text){
-  if(!("speechSynthesis" in window)) return;
-  const u=new SpeechSynthesisUtterance(text);
-  const v=speechSynthesis.getVoices().find(v=>["lb","de-lu","de"].some(p=>v.lang && v.lang.toLowerCase().startsWith(p)));
-  if(v) u.voice=v; u.rate=.9; speechSynthesis.cancel(); speechSynthesis.speak(u);
+async function playSound(src){ try{ if(speaker.src!==src) speaker.src=src; await speaker.play(); }catch(e){} }
+function flash(el, ok){
+  el.classList.remove('flash-good','flash-bad');
+  void el.offsetWidth;
+  el.classList.add(ok ? 'flash-good' : 'flash-bad');
+  setTimeout(()=> el.classList.remove('flash-good','flash-bad'), 260);
 }
-function stripArticle(label){
-  // "d'Buch" -> "Buch"; "de Classeur" -> "Classeur"
-  return label.replace(/^(d')/i,"").replace(/^(de|den)\s+/i,"").trim();
-}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function stripArticle(label){ return label.replace(/^(d')/i,"").replace(/^(de|den)\s+/i,"").trim(); }
 function getLex(id){
   const base = ITEMS.find(x=>x.id===id);
   const lex  = LEXICON[id] || {};
-  const label = base?.label || "";
   return {
     id,
-    label,
-    img: base?.img || "",
-    article: lex.article || (label.startsWith("d'") ? "d'" : null), // fallback guess for d'
-    noun: lex.noun || stripArticle(label),
+    label: base.label,
+    img: base.img,
+    article: lex.article || (base.label.startsWith("d'") ? "d'" : (base.label.startsWith("den ") ? "den" : "de")),
+    noun: lex.noun || stripArticle(base.label),
     plural: lex.plural || null
   };
 }
 
-/* ========= Tabs ========= */
-const GAMES = [
-  {key:'match-audio',  name:'Match: Wuert ↔ Toun'},
-  {key:'spell',        name:'Schreif d’Wuert'},
-  {key:'article',      name:'Artikel wielen'},
-  {key:'plural',       name:'Plural Quiz'},
-  {key:'sentence',     name:'Lies de Saz'}
-];
-let activeKey = GAMES[0].key;
+/* ---------- NAV ---------- */
+const pages = ["g1","g2","g3","g4","g5"];
+let pageIdx = 0;
+const flowLabel = document.getElementById('flowLabel');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+function labelFor(i){ return `${i+1}. Spill`; }
+function updateNav(){
+  flowLabel.textContent = labelFor(pageIdx);
+  prevBtn.classList.toggle('hidden', pageIdx===0);
+  nextBtn.classList.toggle('hidden', pageIdx===pages.length-1);
+}
+function showPage(i){
+  pageIdx = Math.max(0, Math.min(pages.length-1, i));
+  pages.forEach((id,idx)=>document.getElementById(id).classList.toggle('hidden', idx!==pageIdx));
+  updateNav();
+}
+prevBtn.onclick = ()=> showPage(pageIdx-1);
+nextBtn.onclick = ()=> showPage(pageIdx+1);
 
-function buildTabs(){
-  const tabs = $('#tabs'); tabs.innerHTML="";
-  GAMES.forEach(g=>{
-    const b=el('button','tab'+(g.key===activeKey?' active':''), g.name);
-    b.addEventListener('click', ()=>{ activeKey=g.key; buildTabs(); route(); });
-    tabs.appendChild(b);
+const soundToggle = document.getElementById('soundToggle');
+soundToggle.onclick = ()=>{ soundOn=!soundOn; soundToggle.textContent = soundOn ? 'Toun: Un' : 'Toun: Aus'; };
+
+/* ---------- G1: Listen & click correct image (autoplay on target) ---------- */
+const grid1 = document.getElementById('grid1');
+const play1 = document.getElementById('play1');
+let bag1 = shuffle([...ITEMS]);
+let target1 = null;
+
+function layoutG1(){
+  grid1.innerHTML = "";
+  shuffle([...ITEMS]).forEach(it=>{
+    const b = document.createElement('button');
+    b.className = 'imgToken';
+    const img = document.createElement('img');
+    img.src = it.img; img.alt = it.label;
+    b.appendChild(img);
+    b.onclick = ()=> checkG1(it, b);
+    grid1.appendChild(b);
   });
 }
+function nextG1(){
+  if(bag1.length===0){ showPage(pageIdx+1); return; }
+  target1 = bag1.pop();
+  playLabel(target1.label); // AUTOPLAY (respects Toun)
+}
+function checkG1(it, el){
+  const ok = (it.id === target1.id);
+  flash(el, ok);
+  if(ok){ setTimeout(nextG1, 280); }
+}
+play1.onclick = ()=> { if(target1) playLabel(target1.label); };
 
-/* ========= Game: Match word ↔ sound ========= */
-function uiMatchAudio(){
-  const wrap = $('#gamewrap'); wrap.innerHTML="";
-  const top = el('div','row'); const reset = el('button','btn secondary','Reset'); reset.onclick=route;
-  top.append(el('div','pill','Zéi d’Wuert op de Laut 🎧')); top.append(reset); wrap.append(top);
+/* ---------- G2: Spell the word (no word shown) ---------- */
+const spellImg   = document.getElementById('spellImg');
+const spellSlots = document.getElementById('spellSlots');
+const spellBank  = document.getElementById('spellBank');
+const spellNext  = document.getElementById('spellNext');
+let bag2 = shuffle([...ITEMS]); let cur2 = null;
 
-  // Pick a subset (e.g., 8 pairs)
-  const pool = shuffle([...ITEMS]).slice(0,8);
-  const words = el('div','card'); const wrow=el('div','row'); words.append(wrow);
-  pool.forEach(it=>{
-    const btn = el('div','word-card', `<span class="play-icon">▶</span> ${it.label}`);
-    btn.draggable=true; btn.dataset.id=it.id; btn.addEventListener('click',e=>{ if(e.target.closest('.play-icon')) playWordByLabel(it.label); });
-    btn.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/plain', it.id); });
-    wrow.append(btn);
+function setupSpellRound(){
+  if(bag2.length===0){ showPage(pageIdx+1); return; }
+  cur2 = bag2.pop();
+  const lex = getLex(cur2.id);
+  const noun = lex.noun.replace(/\s+/g,''); // letters only
+  spellImg.src = cur2.img; spellImg.alt = lex.label;
+  spellImg.classList.remove('fade'); void spellImg.offsetWidth; spellImg.classList.add('fade');
+
+  // build slots
+  spellSlots.innerHTML = "";
+  spellBank.innerHTML  = "";
+  const letters = [...noun];
+  const shuffled = shuffle(letters.slice());
+
+  // slots
+  const slotEls = letters.map((_ch,i)=>{
+    const s = document.createElement('div'); s.className='slot'; s.dataset.idx=i; s.dataset.ch='';
+    // drop
+    s.addEventListener('dragover',e=>e.preventDefault());
+    s.addEventListener('drop',e=>{
+      e.preventDefault();
+      const ch = e.dataTransfer.getData('text/plain');
+      if(!s.textContent){ s.textContent = ch; s.dataset.ch = ch; checkSpell(); }
+    });
+    // click to remove
+    s.addEventListener('click',()=>{
+      if(!s.textContent) return;
+      const ch = s.textContent; s.textContent=''; s.dataset.ch='';
+      addLetterToBank(ch);
+    });
+    spellSlots.appendChild(s);
+    return s;
   });
 
-  const aud = el('div','grid'); aud.style.gridTemplateColumns='repeat(2,1fr)';
-  aud.classList.add('pairgrid');
-  pool.forEach(it=>{
-    const card = el('div','card audiocard');
-    card.dataset.id = it.id;
-    const play = el('button','btn','▶ Lauschteren'); play.onclick=()=>playWordByLabel(it.label);
-    const dz   = el('div','drop','Drop: Wuert');
-    dz.addEventListener('dragover',e=>{ e.preventDefault(); dz.classList.add('over'); });
-    dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
-    dz.addEventListener('drop',e=>{
-      e.preventDefault(); dz.classList.remove('over');
-      const id=e.dataTransfer.getData('text/plain');
-      if(id===it.id){ dz.textContent = ITEMS.find(x=>x.id===id).label; dz.style.borderColor="#4f7ca0"; setScore(score+1); fb('Richteg!'); }
-      else fb('Nach eng Kéier', false);
+  // bank (drag + click to place in first empty slot)
+  function addLetterToBank(ch){
+    const l = document.createElement('div'); l.className='letter'; l.textContent = ch; l.draggable=true;
+    l.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain', ch));
+    l.addEventListener('click',()=>{
+      const empty = slotEls.find(s=>!s.textContent);
+      if(empty){ empty.textContent=ch; empty.dataset.ch=ch; l.remove(); checkSpell(); }
     });
-    card.append(play,dz); aud.append(card);
-  });
-
-  wrap.append(words, aud);
-}
-
-/* ========= Game: Spell the word ========= */
-function uiSpell(){
-  const wrap = $('#gamewrap'); wrap.innerHTML="";
-  const all = shuffle([...ITEMS]);
-  let idx = 0;
-
-  const head = el('div','toolbar');
-  const next = el('button','btn secondary','Nei Wuert'); head.append(el('div','pill','Zéi d’Buschtawen op d’Plaze'), next);
-  wrap.append(head);
-
-  const zone = el('div','grid'); zone.style.gridTemplateColumns='1fr 1fr'; zone.style.gap='.8rem'; wrap.append(zone);
-
-  function round(){
-    zone.innerHTML="";
-    const it = all[idx % all.length];
-    const lex = getLex(it.id);
-    const img = el('div','card imgbox'); img.append(el('img','',null)); img.querySelector('img').src=it.img; zone.append(img);
-
-    const task = el('div','card');
-    const noun = lex.noun;
-    const letters = [...noun.replace(/\s+/g,'')];
-    const shuffled = shuffle(letters.slice());
-    const slots = el('div','slots');
-    letters.forEach((ch,i)=>{
-      const s = el('div','slot'); s.dataset.idx=i; s.dataset.ch=ch;
-      s.addEventListener('dragover',e=>e.preventDefault());
-      s.addEventListener('drop',e=>{
-        e.preventDefault();
-        const text=e.dataTransfer.getData('text/plain');
-        if(!s.textContent){ s.textContent=text; check(); }
-      });
-      slots.append(s);
-    });
-    const bank = el('div','letters');
-    shuffled.forEach(ch=>{
-      const l = el('div','letter', ch);
-      l.draggable=true;
-      l.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain', ch));
-      bank.append(l);
-    });
-
-    const showWord = el('div','big', `(${lex.article ? lex.article+' ' : ''}${noun})`);
-    task.append(showWord, slots, bank);
-    zone.append(task);
-
-    function check(){
-      const got = [...slots.children].map(s=>s.textContent||'').join('');
-      if(got.length!==letters.length) return;
-      if(got===letters.join('')){ setScore(score+1); fb('Super!'); setTimeout(()=>{ idx++; round(); }, 400); }
-      else fb('Nee, nach eng Kéier', false);
-    }
+    spellBank.appendChild(l);
   }
-  next.onclick=round; round();
-}
+  shuffled.forEach(addLetterToBank);
 
-/* ========= Game: Article picker ========= */
-function uiArticle(){
-  const wrap = $('#gamewrap'); wrap.innerHTML="";
-  const eligible = ITEMS.map(x=>getLex(x.id)).filter(x=>x.article); // only items with article filled/guessed
-  if(!eligible.length){ wrap.textContent="Fëllt w.e.g. d’Artikelen am LEXICON aus fir dëst Spill."; return; }
-
-  const head = el('div','toolbar'); const next=el('button','btn secondary','Weider'); head.append(el('div','pill','Wiel de richtegen Artikel'), next);
-  wrap.append(head);
-
-  const area = el('div','grid'); area.style.gridTemplateColumns='1fr 1fr'; area.style.gap='.8rem'; wrap.append(area);
-
-  let cur=null;
-  function round(){
-    area.innerHTML=""; cur = random(eligible);
-    const img = el('div','card imgbox'); img.append(el('img')); img.querySelector('img').src=cur.img;
-    const q   = el('div','card');
-    q.append(el('div','big', `_____ ${cur.noun}`));
-    const opts = ["de","den","d'"];
-    const choices = el('div','choices');
-    shuffle(opts.slice()).forEach(o=>{
-      const b=el('button','choice',o); b.onclick=()=>{
-        if(o===cur.article){ setScore(score+1); fb('Richteg!'); round(); }
-        else fb('Nee, probéier nach eng Kéier', false);
-      };
-      choices.append(b);
-    });
-    q.append(choices);
-    area.append(img,q);
+  function checkSpell(){
+    const got = slotEls.map(s=>s.dataset.ch).join('');
+    if(got.length !== letters.length) return;
+    if(got === letters.join('')){ flash(spellImg.parentElement, true); setTimeout(setupSpellRound, 450); }
+    else { flash(spellImg.parentElement, false); }
   }
-  next.onclick=round; round();
 }
+spellNext.onclick = setupSpellRound;
 
-/* ========= Game: Plural quiz ========= */
-function uiPlural(){
-  const wrap = $('#gamewrap'); wrap.innerHTML="";
-  const eligible = ITEMS.map(x=>getLex(x.id)).filter(x=>x.plural);
-  if(!eligible.length){ wrap.textContent="Fëllt w.e.g. d’Plurale am LEXICON aus fir dëst Spill."; return; }
+/* ---------- G3: Article picker (centered) ---------- */
+const artImg     = document.getElementById('artImg');
+const artWord    = document.getElementById('artWord');
+const artChoices = document.getElementById('artChoices');
+const artNext    = document.getElementById('artNext');
+let bag3 = shuffle([...ITEMS]); let cur3=null;
 
-  const head = el('div','toolbar'); const next=el('button','btn secondary','Weider'); head.append(el('div','pill','Wielt de richtege Plural'), next);
-  wrap.append(head);
-
-  const box = el('div','card'); wrap.append(box);
-
-  function round(){
-    box.innerHTML="";
-    const cur = random(eligible);
-    const distractors = shuffle(eligible.filter(x=>x.id!==cur.id)).slice(0,2).map(x=>x.plural);
-    const opts = shuffle([cur.plural, ...distractors]);
-
-    box.append(el('div','big', `${cur.label} → ?`));
-    const c = el('div','choices');
-    opts.forEach(o=>{
-      const b=el('button','choice',o); b.onclick=()=>{
-        if(o===cur.plural){ setScore(score+1); fb('Richteg!'); round(); }
-        else fb('Nee, nach eng Kéier', false);
-      };
-      c.append(b);
-    });
-    box.append(c);
-  }
-  next.onclick=round; round();
-}
-
-/* ========= Game: “Lies de Saz” ========= */
-function uiSentence(){
-  const wrap = $('#gamewrap'); wrap.innerHTML="";
-  const eligible = ITEMS.map(x=>getLex(x.id)).filter(x=>x.plural); // needs plural
-  if(!eligible.length){ wrap.textContent="Fëllt d’Plurale am LEXICON aus fir Sätz ze bauen (z. B. „Dräi Classeuren sinn blo.“)."; return; }
-
-  const head = el('div','toolbar');
-  const play = el('button','btn secondary','▶ Ofspillen');
-  const next = el('button','btn','Neie Saz');
-  head.append(el('div','pill','Lies/loss ofspillen'), play, next);
-  wrap.append(head);
-
-  const card = el('div','card'); wrap.append(card);
-
-  let cur=null;
-  function build(){
-    cur = {
-      n: random(NUMBERS),
-      item: random(eligible),
-      col: random(COLOURS)
+function setupArtRound(){
+  if(bag3.length===0){ showPage(pageIdx+1); return; }
+  cur3 = bag3.pop();
+  const lex = getLex(cur3.id);
+  artImg.src = cur3.img; artImg.alt = lex.label;
+  artImg.classList.remove('fade'); void artImg.offsetWidth; artImg.classList.add('fade');
+  artWord.textContent = `_____ ${lex.noun}`;
+  artChoices.innerHTML = "";
+  const opts = ["de","den","d'"];
+  shuffle(opts).forEach(o=>{
+    const b = document.createElement('button'); b.className='choice'; b.textContent=o;
+    b.onclick = ()=>{
+      const ok = (o===lex.article);
+      flash(artImg.parentElement, ok);
+      if(ok) setTimeout(setupArtRound, 450);
     };
-    const sentence = `${numWord(cur.n)} ${cur.item.plural} sinn ${cur.col.name}.`;
-    card.innerHTML="";
-    const row = el('div','row');
-    const img = el('div','imgbox'); img.append(el('img')); img.querySelector('img').src = cur.item.img;
-    const text = el('div','big', sentence);
-    const chip = el('div','colorchip'); chip.style.background=cur.col.hex;
-    row.append(img, text, chip); card.append(row);
+    artChoices.appendChild(b);
+  });
+}
+artNext.onclick = setupArtRound;
+
+/* ---------- G4: Plural quiz (big word + smart distractors) ---------- */
+const pluWord    = document.getElementById('pluWord');
+const pluChoices = document.getElementById('pluChoices');
+const pluNext    = document.getElementById('pluNext');
+let pool4 = ITEMS.map(i=>getLex(i.id)).filter(x=>x.plural); // only items with confirmed plural
+
+function pluralDistractors(baseSing, correct){
+  const stems = [
+    baseSing.replace(/e/g,'ë').replace(/a/g,'ä'),
+    baseSing.replace(/ë/g,'e').replace(/ä/g,'a'),
+    baseSing
+  ];
+  const suffixes = ['en','er','s'];
+  const cand = new Set();
+  stems.forEach(st=>{
+    suffixes.forEach(suf=> cand.add(st + suf));
+  });
+  cand.delete(correct);
+  // Add a couple funny near-misses (swap r/l, duplicate vowel)
+  cand.add(baseSing.replace(/l/,'ll')+'en');
+  cand.add(baseSing.replace(/r/,'rr')+'er');
+  return shuffle([...cand]).slice(0,3);
+}
+
+function setupPluralRound(){
+  if(pool4.length===0){ // nothing to ask until lexicon filled
+    pluWord.textContent="Fëllt d’Plurale fir méi Froen.";
+    pluChoices.innerHTML="";
+    return;
   }
-  play.onclick=()=>{ if(cur){ const s = `${cur.n} ${cur.item.plural} sinn ${cur.col.name}.`; speak(s); } };
-  next.onclick=build; build();
+  const cur = pool4[Math.floor(Math.random()*pool4.length)];
+  pluWord.textContent = cur.label;
+  const wrong = pluralDistractors(cur.noun, cur.plural);
+  const opts = shuffle([cur.plural, ...wrong]);
+  pluChoices.innerHTML="";
+  opts.forEach(o=>{
+    const b=document.createElement('button'); b.className='choice'; b.textContent=o;
+    b.onclick=()=>{
+      const ok = (o===cur.plural);
+      flash(pluWord, ok);
+      if(ok) setTimeout(setupPluralRound, 450);
+    };
+    pluChoices.appendChild(b);
+  });
 }
+pluNext.onclick = setupPluralRound;
 
-/* ========= Router ========= */
-function route(){
-  setScore(0);
-  const m = {
-    'match-audio': uiMatchAudio,
-    'spell': uiSpell,
-    'article': uiArticle,
-    'plural': uiPlural,
-    'sentence': uiSentence
-  };
-  (m[activeKey]||uiMatchAudio)();
+/* ---------- G5: Number square – image – sinn – colour square ---------- */
+const sentNum = document.getElementById('sentNum');
+const sentImg = document.getElementById('sentImg');
+const sentCol = document.getElementById('sentCol');
+const sentNext= document.getElementById('sentNext');
+
+function setupSentence(){
+  const it = ITEMS[Math.floor(Math.random()*ITEMS.length)];
+  const lex = getLex(it.id);
+  const n = NUMBERS[Math.floor(Math.random()*NUMBERS.length)];
+  const c = COLOURS[Math.floor(Math.random()*COLOURS.length)];
+  sentNum.textContent = n;
+  sentImg.src = it.img; sentImg.alt = lex.label;
+  sentCol.style.background = c.hex;
+  // (No full sentence text — only blocks as requested)
 }
+sentNext.onclick = setupSentence;
 
-/* ========= Utilities ========= */
-function shuffle(a){ const r=[...a]; for(let i=r.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]]; } return r; }
-function random(a){ return a[Math.floor(Math.random()*a.length)]; }
-function numWord(n){
-  // Minimal LB numbers for 2–10 (adjust if you prefer variants)
-  const map={2:"Zwee",3:"Dräi",4:"Véier",5:"Fënnef",6:"Sechs",7:"Siwen",8:"Aacht",9:"Néng",10:"Zéng"};
-  return map[n] || String(n);
+/* ---------- INIT ---------- */
+function init(){
+  // G1
+  layoutG1(); nextG1();
+  // G2
+  setupSpellRound();
+  // G3
+  setupArtRound();
+  // G4
+  setupPluralRound();
+  // G5
+  setupSentence();
+  // start
+  showPage(0);
 }
-
-/* ========= Init ========= */
-document.addEventListener('DOMContentLoaded', ()=>{
-  if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = ()=>{};
-  const soundBtn = $('#soundToggle');
-  soundBtn.onclick=()=>{ soundEnabled=!soundEnabled; soundBtn.textContent=soundEnabled?"🔊 Sound: ON":"🔇 Sound: OFF"; soundBtn.setAttribute('aria-pressed', soundEnabled?'true':'false'); };
-  buildTabs(); route();
-});
+init();
 </script>
 </body>
 </html>
