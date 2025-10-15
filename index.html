@@ -13,19 +13,17 @@
 
   :root{
     --blue-mid:#8ab6d9; --blue-light:#cfe4f6; --blue-dark:#4f7ca0;
-    --ink:#173c57; --white:#fff; --bad:#ffcccc; --ok:#b7f0c8;
-    --border:3px;
+    --ink:#173c57; --white:#fff; --bad:#ffcccc; --ok:#b7f0c8; --border:3px;
   }
 
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; outline:none;}
   html,body{height:100%; margin:0; background:linear-gradient(135deg,var(--blue-mid),var(--blue-light)); color:var(--ink); font-family:'Schoulschrëft', Arial, sans-serif;}
 
-  /* Top bar (P1-style, no sound toggle) */
+  /* Top bar */
   .top{
     position:sticky; top:8px; z-index:10; display:flex; gap:10px; align-items:center; justify-content:center;
     background:var(--white); border:var(--border) solid var(--blue-dark); border-radius:18px;
-    padding:.35rem .6rem; margin:10px auto; width:fit-content;
-    box-shadow:0 8px 24px rgba(0,0,0,.08);
+    padding:.35rem .6rem; margin:10px auto; width:fit-content; box-shadow:0 8px 24px rgba(0,0,0,.08);
   }
   .iconBtn{
     border:var(--border) solid var(--ink); background:var(--white); color:var(--ink);
@@ -39,45 +37,51 @@
   .wrap{min-height:100%; display:flex; flex-direction:column; align-items:center; gap:2.5vmin; padding:2.5vmin 3vmin 4vmin;}
   h1{margin:.2rem 0 0; text-align:center; font-size:clamp(2rem,6vmin,4.2rem); color:var(--ink);}
 
-  /* Generic grid / tokens */
-  .grid{
-    width:95vw; max-width:2000px; display:grid; gap:2vmin;
-    grid-template-columns: repeat(auto-fill, minmax(16vmin, 1fr));
-    align-items:stretch;
-  }
-  .imgToken{
-    background:var(--white); border:6px solid var(--blue-mid); border-radius:22px;
-    display:grid; place-items:center; aspect-ratio:1/1; cursor:pointer;
-    transition:transform .1s ease, border-color .15s ease, filter .15s ease, background .15s ease;
-    box-shadow:0 10px 26px rgba(0,0,0,.08);
-    padding:6px;
-  }
-  .imgToken:active{ transform:scale(.97); }
-  .imgToken img{ width:78%; height:70%; object-fit:contain; }
-  .caption{display:block; text-align:center; font-size:clamp(1rem,2.8vmin,1.4rem); margin-top:.2rem;}
-
   .btn{
     border:var(--border) solid var(--ink); background:var(--white); color:var(--ink);
-    padding:.45rem .85rem; border-radius:14px; cursor:pointer; font-size:1.05rem;
+    padding:.45rem .85rem; border-radius:14px; cursor:pointer; font-size:1.05rem; font-family:'Schoulschrëft', Arial, sans-serif;
   }
   .btn:active{ transform:scale(.98); }
 
   .flash-good{ background:var(--ok) !important; border-color:var(--ok) !important; }
   .flash-bad{ background:var(--bad) !important; border-color:var(--bad) !important; }
 
-  /* Big image boxes */
+  /* G1: two lanes */
+  .g1wrap{width:95vw; max-width:1400px; display:grid; gap:2vmin; grid-template-columns: 1fr 1fr;}
+  .gridImgs{
+    display:grid; gap:2vmin; grid-template-columns: repeat(auto-fill, minmax(16vmin,1fr));
+    align-items:stretch;
+  }
+  .imgToken{
+    background:var(--white); border:6px solid var(--blue-mid); border-radius:22px;
+    display:grid; place-items:center; aspect-ratio:1/1; cursor:pointer;
+    transition:transform .1s ease, border-color .15s ease, background .15s ease; box-shadow:0 10px 26px rgba(0,0,0,.08);
+    padding:6px;
+  }
+  .imgToken:active{ transform:scale(.97); }
+  .imgToken img{ width:80%; height:80%; object-fit:contain; }
+  .gridWords{ display:flex; flex-direction:column; gap:1.2vmin; }
+  .wordCard{
+    background:#fff; border:6px solid var(--blue-mid); border-radius:18px;
+    padding:.45rem .8rem; font-size:clamp(1.1rem,3.2vmin,1.6rem); cursor:grab; display:flex; align-items:center; justify-content:space-between; gap:.6rem;
+    box-shadow:0 8px 22px rgba(0,0,0,.06); font-family:'Schoulschrëft', Arial, sans-serif;
+  }
+  .sndBtn{ border:var(--border) solid var(--ink); background:var(--white); border-radius:12px; padding:.2rem .5rem; cursor:pointer; }
+  .selected{ outline:6px solid var(--blue-dark); }
+
+  /* Big boxes */
   .bigBox{
     width:min(70vmin,90%); aspect-ratio:1/1; background:#fff;
     border:12px solid var(--blue-mid); border-radius:40px; display:grid; place-items:center;
-    position:relative; cursor:default;
     box-shadow:0 10px 30px rgba(0,0,0,.08);
   }
   .bigBox img{ width:85%; height:85%; object-fit:contain; }
-  .bigBox.small img{ width:66%; height:66%; } /* ~ 2/3 size for G2 */
+  .bigBox.medium{ width:min(50vmin,72%);}           /* ≈ your red square size */
+  .bigBox.medium img{ width:66%; height:66%; }      /* ~2/3 image size */
   .fade{ animation:fadeIn .35s ease; }
   @keyframes fadeIn{ from{opacity:0; transform:scale(.9)} to{opacity:1; transform:scale(1)} }
 
-  /* Spelling (G2) */
+  /* Spelling */
   .slots{ display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; padding:.4rem; }
   .slot{
     min-width:3.2rem; min-height:4.0rem; border-bottom:6px solid var(--ink);
@@ -89,12 +93,14 @@
     cursor:pointer; font-size:clamp(2rem,5.8vmin,3.2rem); min-width:3.2rem; text-align:center;
   }
 
-  /* Choices line (articles/plurals) */
+  /* Choices – Schoulschrëft enforced */
   .choices{ display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; }
-  .choice{ background:#fff; border:4px solid var(--ink); border-radius:12px; padding:.35rem .7rem; cursor:pointer; font-size:clamp(1.6rem,4.6vmin,2.2rem); }
+  .choice{ background:#fff; border:4px solid var(--ink); border-radius:12px; padding:.35rem .7rem;
+           cursor:pointer; font-size:clamp(1.6rem,4.6vmin,2.2rem); font-family:'Schoulschrëft', Arial, sans-serif; }
 
   /* G3 two-column centered */
   .row2{ display:flex; gap:min(4vmin,28px); align-items:center; justify-content:center; flex-wrap:wrap; }
+  .labelBig{ font-size:clamp(2rem,5.6vmin,3.2rem); text-align:center; margin-bottom:12px; font-family:'Schoulschrëft', Arial, sans-serif; }
 
   /* G5 inline */
   .inlineRow{ display:flex; align-items:center; justify-content:center; gap:min(2.4vmin,18px); flex-wrap:wrap; }
@@ -105,14 +111,12 @@
   }
   .miniImg{
     display:grid; place-items:center; width:min(22vmin,240px); aspect-ratio:1/1;
-    border:8px solid var(--blue-mid); border-radius:18px; background:#fff;
-    box-shadow:0 8px 24px rgba(0,0,0,.08);
+    border:8px solid var(--blue-mid); border-radius:18px; background:#fff; box-shadow:0 8px 24px rgba(0,0,0,.08);
   }
   .miniImg img{ width:85%; height:85%; object-fit:contain; }
-  .verb{
-    display:inline-block; padding:.2rem .8rem; border:6px solid var(--blue-mid); border-radius:16px; background:#fff;
-    font-size:clamp(2rem,5vmin,3rem);
-  }
+  .verb{ display:inline-block; padding:.2rem .8rem; border:6px solid var(--blue-mid); border-radius:16px; background:#fff;
+         font-size:clamp(2rem,5vmin,3rem); }
+  .sentText{ margin-top:10px; font-size:clamp(1.6rem,4.6vmin,2.2rem); text-align:center; min-height:2.4rem; }
 </style>
 </head>
 <body>
@@ -124,29 +128,31 @@
   <button class="iconBtn" id="next">▶</button>
 </div>
 
-<!-- G1: Lauschter a klick op dat richtegt Bild (autoplay target) -->
+<!-- G1: Match word → image -->
 <section class="wrap" id="g1">
-  <h1>Lauschter a klick op dat richtegt Bild</h1>
-  <div class="grid" id="grid1"></div>
-  <div><button class="btn" id="play1">Toun nach eng Kéier</button></div>
+  <h1>Match: Wuert ↔ Bild</h1>
+  <div class="g1wrap">
+    <div class="gridWords" id="wordLane"></div>
+    <div class="gridImgs"  id="imgLane"></div>
+  </div>
 </section>
 
-<!-- G2: Schreif d’Wuert – image (~2/3) → slots → letters -->
+<!-- G2: Schreif d’Wuert -->
 <section class="wrap hidden" id="g2">
   <h1>Schreif d’Wuert</h1>
-  <div class="bigBox small"><img id="spellImg" alt=""></div>
+  <div class="bigBox medium"><img id="spellImg" alt=""></div>
   <div class="slots" id="spellSlots"></div>
   <div class="letters" id="spellBank"></div>
   <div><button class="btn" id="spellNext">Weider</button></div>
 </section>
 
-<!-- G3: Artikel wielen – centered, image left, options right -->
+<!-- G3: Artikel wielen -->
 <section class="wrap hidden" id="g3">
   <h1>Wiel den Artikel</h1>
   <div class="row2">
     <div class="bigBox" style="width:min(46vmin,70%);"><img id="artImg" alt=""></div>
     <div>
-      <div style="font-size:clamp(2rem,5.6vmin,3.2rem); text-align:center; margin-bottom:12px;" id="artWord">_____ Numm</div>
+      <div class="labelBig" id="artWord">_____ Numm</div>
       <div class="choices" id="artChoices"></div>
       <div style="text-align:center; margin-top:12px;"><button class="btn" id="artNext">Weider</button></div>
     </div>
@@ -156,12 +162,12 @@
 <!-- G4: De Pluriel vun de Schoulsaachen -->
 <section class="wrap hidden" id="g4">
   <h1>De Pluriel vun de Schoulsaachen</h1>
-  <div style="font-size:clamp(2.4rem,6.2vmin,3.6rem); text-align:center;" id="pluWord">Wuert</div>
+  <div class="labelBig" id="pluWord">Wuert</div>
   <div class="choices" id="pluChoices"></div>
   <div><button class="btn" id="pluNext">Weider</button></div>
 </section>
 
-<!-- G5: Number square – image – sinn – colour square -->
+<!-- G5: Number square – image – sinn – colour square + Check -->
 <section class="wrap hidden" id="g5">
   <h1>Lies de Saz</h1>
   <div class="inlineRow" id="sentRow">
@@ -170,13 +176,17 @@
     <span class="verb">sinn</span>
     <div class="colSq" id="sentCol"></div>
   </div>
-  <div><button class="btn" id="sentNext">Neie Saz</button></div>
+  <div style="display:flex; gap:.6rem; justify-content:center;">
+    <button class="btn" id="sentNew">Nei Kombinatioun</button>
+    <button class="btn" id="sentCheck">Check</button>
+  </div>
+  <div class="sentText" id="sentText"></div>
 </section>
 
 <audio id="speaker" preload="auto"></audio>
 
 <script>
-/* ---------- DATA ---------- */
+/* ---------- DATA (aligned with your links) ---------- */
 const AUDIO_BASE = "https://github.com/albrechtclaire1007/p3schoulsaachen/raw/refs/heads/main/";
 const AUDIO_FILES = {
   "d'Buch": "BUCH.mp3",
@@ -190,7 +200,6 @@ const AUDIO_FILES = {
   "d'Blat Pabeier": "PABEIER.mp3",
   "de Pech": "pech.mp3",
   "d'Schachtel": "SCHACHTEL.mp3",
-  "de Schwamp": "Schamm.mp3",
   "d'Schéier": "SCHEIER.mp3",
   "de Schoulsak": "Schoulsak.mp3",
   "de Spëtzer": "spëtzer.mp3",
@@ -198,7 +207,7 @@ const AUDIO_FILES = {
   "d'Tuschfaarf": "tuschfaarf.mp3",
   "d'Bläistëftsfaarf": "blaischteftsfaarf.mp3"
 };
-  /* Replace the whole ITEMS array with this */
+
 const ITEMS = [
   {id:'blaisteft',   label:"de Bläistëft",        img:"https://i.postimg.cc/SnZrXnyQ/Bl-ist-ft.png"},
   {id:'blaisteftsf', label:"d'Bläistëftsfaarf",   img:"https://i.postimg.cc/Bjhg8jqv/Bl-ist-ftsfaarwen.png"},
@@ -216,33 +225,11 @@ const ITEMS = [
   {id:'schwamp',     label:"de Schwamp",           img:"https://i.postimg.cc/tsr51sXN/Schwamm.png"},
   {id:'spetzer',     label:"de Spëtzer",           img:"https://i.postimg.cc/pm0Z9m2B/Sp-tzer.png"},
   {id:'tafel',       label:"d'Tafel",              img:"https://i.postimg.cc/rDhJdD8J/Tafel.png"},
-
-  /* Not in your list—keeping previous links so nothing breaks: */
   {id:'tuschfaarf',  label:"d'Tuschfaarf",         img:"https://i.postimg.cc/bD9MmGtQ/15.png"},
   {id:'pech',        label:"de Pech",              img:"https://i.postimg.cc/vcMKpmmT/7.png"}
 ];
-const ITEMS = [
-  {id:'schoulsak',   label:"de Schoulsak",      img:"https://i.postimg.cc/bdTXYnWk/23.png"},
-  {id:'buch',        label:"d'Buch",            img:"https://i.postimg.cc/nMpTLDYK/temp-Image5-PKPI3.avif"},
-  {id:'heft',        label:"d'Heft",            img:"https://i.postimg.cc/F1QmHNR5/17.png"},
-  {id:'classeur',    label:"de Classeur",       img:"https://i.postimg.cc/LnxMDPV2/20.png"},
-  {id:'schachtel',   label:"d'Schachtel",       img:"https://i.postimg.cc/LJ8b80LM/8.png"},
-  {id:'blaisteftsf', label:"d'Bläistëftsfaarf", img:"https://i.postimg.cc/RJCYyM72/16.png"},
-  {id:'tuschfaarf',  label:"d'Tuschfaarf",      img:"https://i.postimg.cc/bD9MmGtQ/15.png"},
-  {id:'lineal',      label:"de Lineal",         img:"https://i.postimg.cc/14DTCFsb/14.png"},
-  {id:'gummi',       label:"de Gummi",          img:"https://i.postimg.cc/t1xQ9MG4/21.png"},
-  {id:'scheier',     label:"d'Schéier",         img:"https://i.postimg.cc/HcXSNGDb/16.png"},
-  {id:'pech',        label:"de Pech",           img:"https://i.postimg.cc/vcMKpmmT/7.png"},
-  {id:'tafel',       label:"d'Tafel",           img:"https://i.postimg.cc/GTLjgWhg/temp-Image-Oxa-Tk-S.avif"},
-  {id:'kraid',       label:"d'Kräid",           img:"https://i.postimg.cc/fVqgtjfS/15.png"},
-  {id:'blat',        label:"d'Blat Pabeier",    img:"https://i.postimg.cc/dLBfvK7B/13.png"},
-  {id:'schwamp',     label:"de Schwamp",        img:"https://i.postimg.cc/kBX024PZ/24.png"},
-  {id:'blaisteft',   label:"de Bläistëft",      img:"https://i.postimg.cc/tnGcRqtr/6.png"},
-  {id:'spetzer',     label:"de Spëtzer",        img:"https://i.postimg.cc/njf8rGnY/22.png"},
-  {id:'leierin',     label:"d'Léierin",         img:"https://i.postimg.cc/qh0cgPnB/temp-Imagevl-Joig.avif"}
-];
 
-/* Optional LEXICON for plural game (fill more when ready) */
+/* Plurals (fill more when ready) */
 const LEXICON = {
   classeur:   { article:"de",  noun:"Classeur",         plural:"Classeuren" },
   schoulsak:  { article:"de",  noun:"Schoulsak",        plural:"Schoulsäck" },
@@ -256,7 +243,6 @@ const LEXICON = {
   lineal:     { article:"de",  noun:"Lineal",           plural:"Linealen" },
   buch:       { article:"d'",  noun:"Buch",             plural:"Bicher" }
 };
-
 const COLOURS = [
   {name:"blo",  hex:"#4C78A8"},
   {name:"rout", hex:"#E45756"},
@@ -272,234 +258,180 @@ const NUMBERS = [2,3,4,5,6,7,8,9,10];
 /* ---------- UTIL ---------- */
 const speaker = document.getElementById('speaker');
 async function playSound(src){ try{ if(speaker.src!==src) speaker.src=src; await speaker.play(); }catch(e){} }
-function playLabel(label){
-  const f = AUDIO_FILES[label];
-  if(f){ playSound(AUDIO_BASE + encodeURIComponent(f)); }
-}
-function flash(el, ok){
-  el.classList.remove('flash-good','flash-bad');
-  void el.offsetWidth;
-  el.classList.add(ok ? 'flash-good' : 'flash-bad');
-  setTimeout(()=> el.classList.remove('flash-good','flash-bad'), 260);
-}
-function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function playLabel(label){ const f=AUDIO_FILES[label]; if(f){ playSound(AUDIO_BASE+encodeURIComponent(f)); } }
 function stripArticle(label){ return label.replace(/^(d')/i,"").replace(/^(de|den)\s+/i,"").trim(); }
 function getLex(id){
-  const base = ITEMS.find(x=>x.id===id);
-  const lex  = LEXICON[id] || {};
-  return {
-    id,
-    label: base.label,
-    img: base.img,
-    article: lex.article || (base.label.startsWith("d'") ? "d'" : (base.label.startsWith("den ") ? "den" : "de")),
-    noun: lex.noun || stripArticle(base.label),
-    plural: lex.plural || null
-  };
+  const base = ITEMS.find(x=>x.id===id); const lex=LEXICON[id]||{};
+  return { id, label:base.label, img:base.img, article:lex.article || (base.label.startsWith("d'")?"d'":(base.label.startsWith("den ")?"den":"de")), noun: lex.noun || stripArticle(base.label), plural: lex.plural || null };
 }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function flash(el, ok){ el.classList.remove('flash-good','flash-bad'); void el.offsetWidth; el.classList.add(ok?'flash-good':'flash-bad'); setTimeout(()=>el.classList.remove('flash-good','flash-bad'), 260); }
 
 /* ---------- NAV ---------- */
-const pages = ["g1","g2","g3","g4","g5"];
-let pageIdx = 0;
-const flowLabel = document.getElementById('flowLabel');
-const prevBtn = document.getElementById('prev');
-const nextBtn = document.getElementById('next');
+const pages=["g1","g2","g3","g4","g5"]; let pageIdx=0;
+const flowLabel=document.getElementById('flowLabel'), prevBtn=document.getElementById('prev'), nextBtn=document.getElementById('next');
 function labelFor(i){ return `${i+1}. Spill`; }
-function updateNav(){
-  flowLabel.textContent = labelFor(pageIdx);
-  prevBtn.classList.toggle('hidden', pageIdx===0);
-  nextBtn.classList.toggle('hidden', pageIdx===pages.length-1);
-}
-function showPage(i){
-  pageIdx = Math.max(0, Math.min(pages.length-1, i));
-  pages.forEach((id,idx)=>document.getElementById(id).classList.toggle('hidden', idx!==pageIdx));
-  updateNav();
-}
-prevBtn.onclick = ()=> showPage(pageIdx-1);
-nextBtn.onclick = ()=> showPage(pageIdx+1);
+function updateNav(){ flowLabel.textContent=labelFor(pageIdx); prevBtn.classList.toggle('hidden',pageIdx===0); nextBtn.classList.toggle('hidden',pageIdx===pages.length-1); }
+function showPage(i){ pageIdx=Math.max(0,Math.min(pages.length-1,i)); pages.forEach((id,idx)=>document.getElementById(id).classList.toggle('hidden',idx!==pageIdx)); updateNav(); }
+prevBtn.onclick=()=>showPage(pageIdx-1); nextBtn.onclick=()=>showPage(pageIdx+1);
 
-/* ---------- G1: Listen & click correct image (autoplay on target) ---------- */
-const grid1 = document.getElementById('grid1');
-const play1 = document.getElementById('play1');
-let bag1 = shuffle([...ITEMS]);
-let target1 = null;
+/* ---------- G1: Match word → image ---------- */
+const wordLane=document.getElementById('wordLane');
+const imgLane =document.getElementById('imgLane');
 
-function layoutG1(){
-  grid1.innerHTML = "";
-  // show captions (words) under each image
-  shuffle([...ITEMS]).forEach(it=>{
-    const b = document.createElement('button');
-    b.className = 'imgToken';
-    b.dataset.id = it.id;
-    b.innerHTML = `<img src="${it.img}" alt="${it.label}"><span class="caption">${it.label}</span>`;
-    b.onclick = ()=> checkG1(it, b);
-    grid1.appendChild(b);
+let g1Pairs=[]; let selectedWord=null;
+function buildG1(){
+  wordLane.innerHTML=""; imgLane.innerHTML=""; selectedWord=null;
+  const pool = shuffle([...ITEMS]);         // same source on both sides
+  g1Pairs = pool.map(it=>({id:it.id}));
+  // words column
+  shuffle([...pool]).forEach(it=>{
+    const card=document.createElement('div');
+    card.className='wordCard'; card.draggable=true; card.dataset.id=it.id; card.textContent=it.label;
+    // play on click + support click-to-select
+    card.addEventListener('click',()=>{
+      playLabel(it.label);
+      if(selectedWord===card){ card.classList.remove('selected'); selectedWord=null; return; }
+      if(selectedWord) selectedWord.classList.remove('selected');
+      selectedWord=card; card.classList.add('selected');
+    });
+    card.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/plain', it.id); });
+    wordLane.appendChild(card);
+  });
+  // images grid (drop targets + click targets)
+  shuffle([...pool]).forEach(it=>{
+    const tile=document.createElement('div');
+    tile.className='imgToken'; tile.dataset.id=it.id;
+    tile.innerHTML=`<img src="${it.img}" alt="${it.label}">`;
+    // drag over/drop
+    tile.addEventListener('dragover',e=>e.preventDefault());
+    tile.addEventListener('drop',e=>{
+      e.preventDefault();
+      const wid=e.dataTransfer.getData('text/plain');
+      checkG1(wid, tile);
+    });
+    // click-to-match if a word is selected
+    tile.addEventListener('click',()=>{
+      if(!selectedWord) return;
+      checkG1(selectedWord.dataset.id, tile, selectedWord);
+    });
+    imgLane.appendChild(tile);
   });
 }
-function nextG1(){
-  if(bag1.length===0){ showPage(pageIdx+1); return; }
-  target1 = bag1.pop();            // target locked by id
-  playLabel(target1.label);        // autoplay uses the exact label mapping
+function checkG1(wordId, tile, wordEl=null){
+  const ok = (wordId === tile.dataset.id);
+  flash(tile, ok);
+  if(ok){
+    // lock the pair
+    tile.style.pointerEvents='none';
+    tile.style.opacity='.9';
+    const w = wordEl || [...wordLane.children].find(x=>x.dataset.id===wordId);
+    if(w){ w.style.pointerEvents='none'; w.style.opacity='.5'; w.classList.remove('selected'); if(selectedWord===w) selectedWord=null; }
+    // done?
+    const remaining = [...wordLane.children].some(x=>x.style.pointerEvents!=='none');
+    if(!remaining){ setTimeout(()=>showPage(pageIdx+1), 600); }
+  }else{
+    if(wordEl){ wordEl.classList.remove('selected'); selectedWord=null; }
+  }
 }
-function checkG1(it, el){
-  const ok = (it.id === target1.id);
-  flash(el, ok);
-  if(ok){ setTimeout(nextG1, 280); }
-}
-play1.onclick = ()=> { if(target1) playLabel(target1.label); };
 
-/* ---------- G2: Spell the word (no word shown) ---------- */
-const spellImg   = document.getElementById('spellImg');
-const spellSlots = document.getElementById('spellSlots');
-const spellBank  = document.getElementById('spellBank');
-const spellNext  = document.getElementById('spellNext');
-let bag2 = shuffle([...ITEMS]); let cur2 = null;
-
+/* ---------- G2: Spell the word ---------- */
+const spellImg=document.getElementById('spellImg'), spellSlots=document.getElementById('spellSlots'), spellBank=document.getElementById('spellBank'), spellNext=document.getElementById('spellNext');
+let bag2=shuffle([...ITEMS]); let cur2=null;
 function setupSpellRound(){
   if(bag2.length===0){ showPage(pageIdx+1); return; }
-  cur2 = bag2.pop();
-  const lex = getLex(cur2.id);
-  const noun = lex.noun.replace(/\s+/g,'');
-  spellImg.src = cur2.img; spellImg.alt = lex.label;
-  spellImg.classList.remove('fade'); void spellImg.offsetWidth; spellImg.classList.add('fade');
+  cur2=bag2.pop();
+  const lex=getLex(cur2.id);
+  const noun=lex.noun.replace(/\s+/g,'');
+  spellImg.src=cur2.img; spellImg.alt=lex.label; spellImg.classList.remove('fade'); void spellImg.offsetWidth; spellImg.classList.add('fade');
 
-  spellSlots.innerHTML = "";
-  spellBank.innerHTML  = "";
-  const letters = [...noun];
-  const shuffled = shuffle(letters.slice());
-
-  const slotEls = letters.map((_ch,i)=>{
-    const s = document.createElement('div'); s.className='slot'; s.dataset.idx=i; s.dataset.ch='';
+  spellSlots.innerHTML=""; spellBank.innerHTML="";
+  const letters=[...noun]; const shuffled=shuffle(letters.slice());
+  const slotEls=letters.map((_ch,i)=>{
+    const s=document.createElement('div'); s.className='slot'; s.dataset.idx=i; s.dataset.ch='';
     s.addEventListener('dragover',e=>e.preventDefault());
-    s.addEventListener('drop',e=>{
-      e.preventDefault();
-      const ch = e.dataTransfer.getData('text/plain');
-      if(!s.textContent){ s.textContent = ch; s.dataset.ch = ch; checkSpell(); }
-    });
-    s.addEventListener('click',()=>{
-      if(!s.textContent) return;
-      const ch = s.textContent; s.textContent=''; s.dataset.ch='';
-      addLetterToBank(ch);
-    });
-    spellSlots.appendChild(s);
-    return s;
+    s.addEventListener('drop',e=>{ e.preventDefault(); const ch=e.dataTransfer.getData('text/plain'); if(!s.textContent){ s.textContent=ch; s.dataset.ch=ch; check(); }});
+    s.addEventListener('click',()=>{ if(!s.textContent)return; const ch=s.textContent; s.textContent=''; s.dataset.ch=''; addLetter(ch); });
+    spellSlots.appendChild(s); return s;
   });
-
-  function addLetterToBank(ch){
-    const l = document.createElement('div'); l.className='letter'; l.textContent = ch; l.draggable=true;
+  function addLetter(ch){
+    const l=document.createElement('div'); l.className='letter'; l.textContent=ch; l.draggable=true;
     l.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain', ch));
-    l.addEventListener('click',()=>{
-      const empty = slotEls.find(s=>!s.textContent);
-      if(empty){ empty.textContent=ch; empty.dataset.ch=ch; l.remove(); checkSpell(); }
-    });
+    l.addEventListener('click',()=>{ const empty=slotEls.find(s=>!s.textContent); if(empty){ empty.textContent=ch; empty.dataset.ch=ch; l.remove(); check(); }});
     spellBank.appendChild(l);
   }
-  shuffled.forEach(addLetterToBank);
-
-  function checkSpell(){
-    const got = slotEls.map(s=>s.dataset.ch).join('');
-    if(got.length !== letters.length) return;
-    if(got === letters.join('')){ flash(spellImg.parentElement, true); setTimeout(setupSpellRound, 450); }
-    else { flash(spellImg.parentElement, false); }
-  }
+  shuffled.forEach(addLetter);
+  function check(){ const got=slotEls.map(s=>s.dataset.ch).join(''); if(got.length!==letters.length) return; flash(spellImg.parentElement, got===letters.join('')); if(got===letters.join('')) setTimeout(setupSpellRound, 450); }
 }
-spellNext.onclick = setupSpellRound;
+spellNext.onclick=setupSpellRound;
 
-/* ---------- G3: Article picker (image left, options right) ---------- */
-const artImg     = document.getElementById('artImg');
-const artWord    = document.getElementById('artWord');
-const artChoices = document.getElementById('artChoices');
-const artNext    = document.getElementById('artNext');
-let bag3a = shuffle([...ITEMS]); let cur3=null;
-
+/* ---------- G3: Articles ---------- */
+const artImg=document.getElementById('artImg'), artWord=document.getElementById('artWord'), artChoices=document.getElementById('artChoices'), artNext=document.getElementById('artNext');
+let bag3=shuffle([...ITEMS]); let cur3=null;
 function setupArtRound(){
-  if(bag3a.length===0){ showPage(pageIdx+1); return; }
-  cur3 = bag3a.pop();
-  const lex = getLex(cur3.id);
-  artImg.src = cur3.img; artImg.alt = lex.label;
-  artImg.classList.remove('fade'); void artImg.offsetWidth; artImg.classList.add('fade');
-  artWord.textContent = `_____ ${lex.noun}`;
-  artChoices.innerHTML = "";
-  const opts = ["de","den","d'"];
-  shuffle(opts).forEach(o=>{
-    const b = document.createElement('button'); b.className='choice'; b.textContent=o;
-    b.onclick = ()=>{
-      const ok = (o===lex.article);
-      flash(artImg.parentElement, ok);
-      if(ok) setTimeout(setupArtRound, 450);
-    };
+  if(bag3.length===0){ showPage(pageIdx+1); return; }
+  cur3=bag3.pop(); const lex=getLex(cur3.id);
+  artImg.src=cur3.img; artImg.alt=lex.label; artImg.classList.remove('fade'); void artImg.offsetWidth; artImg.classList.add('fade');
+  artWord.textContent=`_____ ${lex.noun}`; artChoices.innerHTML="";
+  ["de","den","d'"].sort(()=>Math.random()-.5).forEach(o=>{
+    const b=document.createElement('button'); b.className='choice'; b.textContent=o;
+    b.onclick=()=>{ const ok=(o===lex.article); flash(artImg.parentElement, ok); if(ok) setTimeout(setupArtRound, 450); };
     artChoices.appendChild(b);
   });
 }
-artNext.onclick = setupArtRound;
+artNext.onclick=setupArtRound;
 
-/* ---------- G4: Plural quiz (no double consonant tricks) ---------- */
-const pluWord    = document.getElementById('pluWord');
-const pluChoices = document.getElementById('pluChoices');
-const pluNext    = document.getElementById('pluNext');
-let pool4 = ITEMS.map(i=>getLex(i.id)).filter(x=>x.plural);
-
+/* ---------- G4: Plural (no double consonant tricks) ---------- */
+const pluWord=document.getElementById('pluWord'), pluChoices=document.getElementById('pluChoices'), pluNext=document.getElementById('pluNext');
+let pool4=ITEMS.map(i=>getLex(i.id)).filter(x=>x.plural);
 function pluralDistractors(baseSing, correct){
-  // only vowel tweaks + -en/-er/-s (no double consonants)
-  const stems = [
-    baseSing.replace(/e/g,'ë').replace(/a/g,'ä'),
-    baseSing.replace(/ë/g,'e').replace(/ä/g,'a'),
-    baseSing
-  ];
-  const suffixes = ['en','er','s'];
-  const cand = new Set();
-  stems.forEach(st=> suffixes.forEach(suf=> cand.add(st + suf)));
+  const stems=[ baseSing.replace(/e/g,'ë').replace(/a/g,'ä'), baseSing.replace(/ë/g,'e').replace(/ä/g,'a'), baseSing ];
+  const suffixes=['en','er','s']; const cand=new Set();
+  stems.forEach(st=>suffixes.forEach(s=>cand.add(st+s)));
   cand.delete(correct);
   return shuffle([...cand]).slice(0,3);
 }
 function setupPluralRound(){
-  if(!pool4.length){
-    pluWord.textContent="Fëllt d’Plurale fir méi Froen.";
-    pluChoices.innerHTML="";
-    return;
-  }
-  const cur = pool4[Math.floor(Math.random()*pool4.length)];
-  pluWord.textContent = cur.label;
-  const wrong = pluralDistractors(cur.noun, cur.plural);
-  const opts = shuffle([cur.plural, ...wrong]);
-  pluChoices.innerHTML="";
+  if(!pool4.length){ pluWord.textContent="Fëllt d’Plurale fir méi Froen."; pluChoices.innerHTML=""; return; }
+  const cur=pool4[Math.floor(Math.random()*pool4.length)];
+  pluWord.textContent=cur.label;
+  const wrong=pluralDistractors(cur.noun, cur.plural);
+  const opts=shuffle([cur.plural, ...wrong]); pluChoices.innerHTML="";
   opts.forEach(o=>{
     const b=document.createElement('button'); b.className='choice'; b.textContent=o;
-    b.onclick=()=>{
-      const ok = (o===cur.plural);
-      flash(pluWord, ok);
-      if(ok) setTimeout(setupPluralRound, 450);
-    };
+    b.onclick=()=>{ const ok=(o===cur.plural); flash(pluWord, ok); if(ok) setTimeout(setupPluralRound, 450); };
     pluChoices.appendChild(b);
   });
 }
-pluNext.onclick = setupPluralRound;
+pluNext.onclick=setupPluralRound;
 
-/* ---------- G5: Number square – image – sinn – colour square ---------- */
-const sentNum = document.getElementById('sentNum');
-const sentImg = document.getElementById('sentImg');
-const sentCol = document.getElementById('sentCol');
-const sentNext= document.getElementById('sentNext');
-
-function setupSentence(){
-  const it = ITEMS[Math.floor(Math.random()*ITEMS.length)];
+/* ---------- G5: Build + Check ---------- */
+const sentNum=document.getElementById('sentNum'), sentImg=document.getElementById('sentImg'), sentCol=document.getElementById('sentCol');
+const sentNew=document.getElementById('sentNew'), sentCheck=document.getElementById('sentCheck'), sentText=document.getElementById('sentText');
+function numWord(n){ const m={2:"Zwee",3:"Dräi",4:"Véier",5:"Fënnef",6:"Sechs",7:"Siwen",8:"Aacht",9:"Néng",10:"Zéng"}; return m[n]||String(n); }
+let curSent=null; // {n,item,color}
+function buildSentence(){
+  const pool = pool4.length? pool4 : ITEMS.map(i=>getLex(i.id)).filter(x=>x.plural); // prefer items with plural
+  const item = pool[Math.floor(Math.random()*pool.length)];
   const n = NUMBERS[Math.floor(Math.random()*NUMBERS.length)];
-  const c = COLOURS[Math.floor(Math.random()*COLOURS.length)];
-  sentNum.textContent = n;
-  sentImg.src = it.img; sentImg.alt = it.label;
-  sentCol.style.background = c.hex;
+  const col = COLOURS[Math.floor(Math.random()*COLOURS.length)];
+  sentNum.textContent=n; sentImg.src=ITEMS.find(x=>x.id===item.id).img; sentImg.alt=item.label; sentCol.style.background=col.hex;
+  sentText.textContent=""; curSent={n,item,col};
 }
-sentNext.onclick = setupSentence;
+sentNew.onclick=buildSentence;
+sentCheck.onclick=()=>{ if(!curSent) return; const s=`${numWord(curSent.n)} ${curSent.item.plural} sinn ${curSent.col.name}.`; sentText.textContent=s; };
 
 /* ---------- INIT ---------- */
 function init(){
-  layoutG1(); nextG1();
+  buildG1();
   setupSpellRound();
   setupArtRound();
   setupPluralRound();
-  setupSentence();
+  buildSentence();
   showPage(0);
 }
 init();
 </script>
 </body>
 </html>
+
