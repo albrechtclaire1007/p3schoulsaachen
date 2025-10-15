@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Schoulsaachen – Drag & Drop</title>
+  <title>P3 Schoulsaachen – Multi Games</title>
   <style>
     @font-face{
       font-family:"Schoulschrëft Bold";
@@ -20,301 +20,415 @@
       position:relative;
       width:min(100vw, calc(100vh * 16 / 9));
       height:min(100vh, calc(100vw * 9 / 16));
-      background:#ffffffb3; border-radius:16px; padding:1.2rem;
+      background:#ffffffb3; border-radius:16px; padding:1rem;
       box-shadow:0 12px 30px rgba(0,0,0,.15);
-      overflow:hidden;
+      display:flex; flex-direction:column; gap:.6rem; overflow:hidden;
     }
-    .header{display:flex;gap:.8rem;justify-content:space-between;align-items:center;margin-bottom:.8rem}
-    .title{font-size:clamp(20px,3vw,34px);color:#173c57}
-    .controls{display:flex;gap:.6rem;align-items:center}
-    .pill{background:#4f7ca0;color:#fff;padding:.4rem .9rem;border-radius:999px}
-    .btn{background:#8ab6d9;color:#fff;border:none;padding:.5rem .9rem;border-radius:999px;cursor:pointer}
+    .header{display:flex;gap:.6rem;justify-content:space-between;align-items:center}
+    .title{font-size:clamp(18px,2.8vw,32px);color:#173c57}
+    .pill{background:#4f7ca0;color:#fff;padding:.3rem .8rem;border-radius:999px}
+    .btn{background:#8ab6d9;color:#fff;border:none;padding:.45rem .85rem;border-radius:999px;cursor:pointer}
     .btn.secondary{background:#4f7ca0}
-
-    .game{display:grid; grid-template-rows:auto 1fr; gap:.6rem; height:calc(100% - 3.2rem)}
-
-    .word-cards{
-      display:grid; grid-auto-flow:column; grid-auto-columns:max-content; gap:.4rem;
-      overflow-x:auto; padding:.3rem;
-    }
-    .word-card{
-      background:#fff; color:#173c57; border:2px solid #000;
-      padding:.35rem .6rem; border-radius:14px; user-select:none; cursor:grab; font-size:clamp(12px,1.5vw,18px);
-      transition:all .2s ease; display:inline-flex; align-items:center; gap:.4rem;
-    }
-    .word-card:hover{background:#8ab6d9; color:#fff; transform:translateY(-2px)}
-    .word-card.dragging{opacity:.7; transform:rotate(3deg)}
-    .word-card.correct-flash{background:#4f7ca0!important;color:#fff!important;animation:flash .8s ease}
-    .play-icon{
-      display:inline-grid; place-items:center; width:1.4em; height:1.4em; border-radius:999px;
-      border:2px solid currentColor; font-size:0.9em; line-height:1; transform:translateY(1px);
-      pointer-events:auto; cursor:pointer;
-    }
-    @keyframes flash{50%{transform:scale(1.07)}}
-
-    .board{
-      position:relative; border-radius:12px; flex:1;
-      box-shadow:inset 0 0 0 2px rgba(23,60,87,.12);
-      background:#f8f9fa;
-      display:grid; grid-template-columns:repeat(6, 1fr); grid-template-rows:repeat(3, 1fr);
-      gap:1rem; padding:1rem;
-    }
-    .board::before{
-      content:""; position:absolute; inset:0; z-index:0;
-      background:linear-gradient(180deg,#d7e8f6 0%, #a8c6df 100%);
-      mask:
-        radial-gradient(800px 200px at 50% 30%, rgba(0,0,0,.35) 99%, transparent 100%) top/100% 45% no-repeat,
-        linear-gradient(#000 0 0) bottom/100% 60% no-repeat;
-    }
-    .drop-zone{
-      position:relative; z-index:1;
-      display:flex;flex-direction:column; align-items:center; justify-content:center;
-      gap:.25rem; border-radius:12px; transition:.15s transform, .15s background;
-      background:#fff; border:2px solid #e9ecef; padding:.5rem;
-      min-height:120px; max-height:120px; overflow:hidden;
-    }
-    .drop-zone.drag-over{background:rgba(205,228,245,.5); transform:scale(1.05); border-color:#8ab6d9}
-    .drop-zone.correct{background:rgba(79,124,160,.3); animation:flash .8s ease; border-color:#4f7ca0}
-    .drop-zone img{max-width:80px; max-height:80px; object-fit:contain; border-radius:8px}
-    .dropped-word{
-      background:#4f7ca0; color:#fff; padding:.3rem .5rem; border-radius:8px;
-      font-size:clamp(10px,1.2vw,14px); margin-top:.25rem; text-align:center;
-    }
-
+    .tabs{display:flex;gap:.4rem;flex-wrap:wrap}
+    .tab{background:#d6e7f6;color:#173c57;border:none;padding:.4rem .7rem;border-radius:10px;cursor:pointer}
+    .tab.active{background:#4f7ca0;color:#fff}
+    .gamewrap{position:relative; flex:1; background:#f8f9fa; border-radius:12px; padding:.8rem; overflow:auto}
+    .row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+    .grid{display:grid; gap:.6rem}
+    .card{background:#fff;border:2px solid #e9ecef;border-radius:12px;padding:.5rem}
+    .word-card{border:2px solid #000; border-radius:14px; padding:.35rem .6rem; display:inline-flex; gap:.4rem; align-items:center; cursor:grab}
+    .play-icon{display:inline-grid; place-items:center; width:1.4em; height:1.4em; border-radius:999px; border:2px solid currentColor; font-size:.9em; line-height:1}
+    .drop{min-height:80px; display:grid; place-items:center; border:2px dashed #8ab6d9; border-radius:12px; padding:.6rem}
+    .drop.over{background:#e9f4ff}
+    .pairgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:.6rem}
+    .audiocard{display:flex; align-items:center; justify-content:center; gap:.5rem; min-height:64px; cursor:pointer}
+    .imgbox{display:grid; place-items:center}
+    .imgbox img{max-width:120px; max-height:120px; object-fit:contain}
+    .letters{display:flex; gap:.4rem; flex-wrap:wrap}
+    .letter{background:#fff;border:2px solid #173c57;border-radius:10px;padding:.3rem .5rem; cursor:grab; min-width:1.8rem; text-align:center}
+    .slots{display:flex; gap:.3rem; flex-wrap:wrap; padding:.3rem}
+    .slot{min-width:1.8rem; min-height:2.2rem; border-bottom:3px solid #173c57; display:grid; place-items:center}
+    .choices{display:flex; gap:.5rem; flex-wrap:wrap}
+    .choice{background:#fff;border:2px solid #173c57;border-radius:10px;padding:.35rem .65rem; cursor:pointer}
+    .big{font-size:clamp(18px,2.4vw,28px)}
     .feedback{
       position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
       background:#fff; padding:1rem 2rem; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,.3);
-      font-size:clamp(18px,2.5vw,24px); z-index:1000; opacity:0; pointer-events:none; transition:.3s all;
+      font-size:clamp(18px,2.2vw,24px); z-index:1000; opacity:0; pointer-events:none; transition:.3s all;
     }
     .feedback.show{opacity:1; transform:translate(-50%,-50%) scale(1.05)}
-    .feedback.correct{color:#4f7ca0; border:3px solid #4f7ca0}
-    .feedback.incorrect{color:#dc3545; border:3px solid #dc3545}
+    .ok{color:#4f7ca0; border:3px solid #4f7ca0}
+    .bad{color:#dc3545; border:3px solid #dc3545}
+    .toolbar{display:flex; gap:.5rem; align-items:center; flex-wrap:wrap}
+    .colorchip{width:28px;height:28px;border-radius:8px;border:2px solid #173c57}
   </style>
 </head>
 <body>
   <div class="stage">
     <div class="header">
-      <h1 class="title">Schoulsaachen</h1>
-      <div class="controls">
+      <div class="row">
+        <h1 class="title">Schoulsaachen – Mini Games</h1>
         <div class="pill">Score: <span id="score">0</span></div>
-        <div class="pill" id="timer" style="display:none">Zäit: <span id="time">60</span>s</div>
-        <button class="btn" id="challengeBtn">60-Sekonnen</button>
         <button class="btn secondary" id="soundToggle" aria-pressed="true">🔊 Sound: ON</button>
       </div>
+      <div class="tabs" id="tabs"></div>
     </div>
 
-    <div class="game">
-      <div class="word-cards" id="wordContainer"></div>
-      <div class="board" id="board"></div>
-    </div>
+    <div class="gamewrap" id="gamewrap"></div>
 
-    <div class="feedback" id="feedback"></div>
+    <div class="feedback" id="fb"></div>
   </div>
 
 <script>
-  /* ============ AUDIO ============ */
-  const AUDIO_BASE = "https://github.com/albrechtclaire1007/p3schoulsaachen/raw/refs/heads/main/";
-  const AUDIO_FILES = {
-    "d'Buch": "BUCH.mp3",
-    "de Bläistëft": "Bläistëft.mp3",
-    "de Classeur": "Classeuren.mp3",
-    "de Gummi": "GUMMI.mp3",
-    "d'Heft": "HEFT.mp3",
-    "d'Kräid": "KRÄID.mp3",
-    "d'Léierin": "léierin.mp3",
-    "de Lineal": "LINEAL.mp3",
-    "d'Blat Pabeier": "PABEIER.mp3",
-    "de Pech": "pech.mp3",
-    "d'Schachtel": "SCHACHTEL.mp3",
-    "de Schwamp": "Schamm.mp3",
-    "d'Schéier": "SCHEIER.mp3",
-    "de Schoulsak": "Schoulsak.mp3",
-    "de Spëtzer": "spëtzer.mp3",
-    "d'Tafel": "tafel.mp3",
-    "d'Tuschfaarf": "tuschfaarf.mp3",
-    "d'Bläistëftsfaarf": "blaischteftsfaarf.mp3"
+/* ========= DATA ========= */
+const AUDIO_BASE = "https://github.com/albrechtclaire1007/p3schoulsaachen/raw/refs/heads/main/";
+const AUDIO_FILES = {
+  "d'Buch": "BUCH.mp3",
+  "de Bläistëft": "Bläistëft.mp3",
+  "de Classeur": "Classeuren.mp3",
+  "de Gummi": "GUMMI.mp3",
+  "d'Heft": "HEFT.mp3",
+  "d'Kräid": "KRÄID.mp3",
+  "d'Léierin": "léierin.mp3",
+  "de Lineal": "LINEAL.mp3",
+  "d'Blat Pabeier": "PABEIER.mp3",
+  "de Pech": "pech.mp3",
+  "d'Schachtel": "SCHACHTEL.mp3",
+  "de Schwamp": "Schamm.mp3",
+  "d'Schéier": "SCHEIER.mp3",
+  "de Schoulsak": "Schoulsak.mp3",
+  "de Spëtzer": "spëtzer.mp3",
+  "d'Tafel": "tafel.mp3",
+  "d'Tuschfaarf": "tuschfaarf.mp3",
+  "d'Bläistëftsfaarf": "blaischteftsfaarf.mp3"
+};
+
+// Core item list (reusing your images)
+const ITEMS = [
+  {id:'schoulsak',   label:"de Schoulsak",      img:"https://i.postimg.cc/bdTXYnWk/23.png"},
+  {id:'buch',        label:"d'Buch",            img:"https://i.postimg.cc/nMpTLDYK/temp-Image5-PKPI3.avif"},
+  {id:'heft',        label:"d'Heft",            img:"https://i.postimg.cc/F1QmHNR5/17.png"},
+  {id:'classeur',    label:"de Classeur",       img:"https://i.postimg.cc/LnxMDPV2/20.png"},
+  {id:'schachtel',   label:"d'Schachtel",       img:"https://i.postimg.cc/LJ8b80LM/8.png"},
+  {id:'blaisteftsf', label:"d'Bläistëftsfaarf", img:"https://i.postimg.cc/RJCYyM72/16.png"},
+  {id:'tuschfaarf',  label:"d'Tuschfaarf",      img:"https://i.postimg.cc/bD9MmGtQ/15.png"},
+  {id:'lineal',      label:"de Lineal",         img:"https://i.postimg.cc/14DTCFsb/14.png"},
+  {id:'gummi',       label:"de Gummi",          img:"https://i.postimg.cc/t1xQ9MG4/21.png"},
+  {id:'scheier',     label:"d'Schéier",         img:"https://i.postimg.cc/HcXSNGDb/16.png"},
+  {id:'pech',        label:"de Pech",           img:"https://i.postimg.cc/vcMKpmmT/7.png"},
+  {id:'tafel',       label:"d'Tafel",           img:"https://i.postimg.cc/GTLjgWhg/temp-Image-Oxa-Tk-S.avif"},
+  {id:'kraid',       label:"d'Kräid",           img:"https://i.postimg.cc/fVqgtjfS/15.png"},
+  {id:'blat',        label:"d'Blat Pabeier",    img:"https://i.postimg.cc/dLBfvK7B/13.png"},
+  {id:'schwamp',     label:"de Schwamp",        img:"https://i.postimg.cc/kBX024PZ/24.png"},
+  {id:'blaisteft',   label:"de Bläistëft",      img:"https://i.postimg.cc/tnGcRqtr/6.png"},
+  {id:'spetzer',     label:"de Spëtzer",        img:"https://i.postimg.cc/njf8rGnY/22.png"},
+  {id:'leierin',     label:"d'Léierin",         img:"https://i.postimg.cc/qh0cgPnB/temp-Imagevl-Joig.avif"}
+];
+
+/* ========= OPTIONAL: Articles & Plurals (fill from your sheet) =========
+   - If article is missing, "Article" game will skip that item.
+   - If plural is missing, "Plural" and "Lies de Saz" (plural sentence) will skip that item.
+   Paste your definitive values here.
+*/
+const LEXICON = {
+  // id: { article: "de|den|d'", noun:"...", plural:"..." }
+  classeur: { article:"de",  noun:"Classeur", plural:"Classeuren" }, // ✅ audio filename hints this is correct
+  // TODO: fill the rest (examples/guesses removed to avoid wrong forms)
+};
+
+/* ========= Colours & Numbers for sentence generator ========= */
+const COLOURS = [
+  {name:"blo",  hex:"#4C78A8"},
+  {name:"rout", hex:"#E45756"},
+  {name:"gréng",hex:"#72B7B2"},
+  {name:"giel", hex:"#F1A33C"},
+  {name:"rosa", hex:"#E46BA0"},
+  {name:"orange",hex:"#F58518"},
+  {name:"mof",  hex:"#7E6ACE"},
+  {name:"schwaarz", hex:"#2D2D2D"}
+];
+const NUMBERS = [2,3,4,5,6,7,8,9,10]; // “sinn” requires plural
+
+/* ========= Helpers ========= */
+const $ = s=>document.querySelector(s);
+const el = (tag, cls, html)=>{ const x=document.createElement(tag); if(cls) x.className=cls; if(html!=null) x.innerHTML=html; return x; };
+const norm = s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[\u2019\u2018\u0060]/g,"'").replace(/\s+/g," ").trim();
+
+let soundEnabled = true;
+let score = 0;
+function setScore(v){ score=v; $('#score').textContent=v; }
+function fb(msg, ok=true){ const f=$('#fb'); f.textContent=msg; f.className='feedback '+(ok?'ok':'bad')+' show'; setTimeout(()=>f.classList.remove('show'), 900); }
+
+function playWordByLabel(label){
+  if(!soundEnabled) return;
+  const file = AUDIO_FILES[label];
+  if(file){ new Audio(AUDIO_BASE + encodeURIComponent(file)).play().catch(()=>{}); return; }
+  if("speechSynthesis" in window){
+    const u=new SpeechSynthesisUtterance(label);
+    const v=speechSynthesis.getVoices().find(v=>["lb","de-lu","de"].some(p=>v.lang && v.lang.toLowerCase().startsWith(p)));
+    if(v) u.voice=v; u.rate=.9; speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }
+}
+function speak(text){
+  if(!("speechSynthesis" in window)) return;
+  const u=new SpeechSynthesisUtterance(text);
+  const v=speechSynthesis.getVoices().find(v=>["lb","de-lu","de"].some(p=>v.lang && v.lang.toLowerCase().startsWith(p)));
+  if(v) u.voice=v; u.rate=.9; speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+function stripArticle(label){
+  // "d'Buch" -> "Buch"; "de Classeur" -> "Classeur"
+  return label.replace(/^(d')/i,"").replace(/^(de|den)\s+/i,"").trim();
+}
+function getLex(id){
+  const base = ITEMS.find(x=>x.id===id);
+  const lex  = LEXICON[id] || {};
+  const label = base?.label || "";
+  return {
+    id,
+    label,
+    img: base?.img || "",
+    article: lex.article || (label.startsWith("d'") ? "d'" : null), // fallback guess for d'
+    noun: lex.noun || stripArticle(label),
+    plural: lex.plural || null
   };
-  let soundEnabled = true;
-  function playWord(word) {
-    if (!soundEnabled) return;
-    const file = AUDIO_FILES[word];
-    if (file) { new Audio(AUDIO_BASE + encodeURIComponent(file)).play().catch(()=>{}); return; }
-    // TTS fallback
-    if ("speechSynthesis" in window) {
-      const u = new SpeechSynthesisUtterance(word);
-      const voice = speechSynthesis.getVoices()
-        .find(v => ["lb","de-lu","de"].some(p => v.lang && v.lang.toLowerCase().startsWith(p)));
-      if (voice) u.voice = voice;
-      u.rate = 0.9;
-      speechSynthesis.cancel();
-      speechSynthesis.speak(u);
+}
+
+/* ========= Tabs ========= */
+const GAMES = [
+  {key:'match-audio',  name:'Match: Wuert ↔ Toun'},
+  {key:'spell',        name:'Schreif d’Wuert'},
+  {key:'article',      name:'Artikel wielen'},
+  {key:'plural',       name:'Plural Quiz'},
+  {key:'sentence',     name:'Lies de Saz'}
+];
+let activeKey = GAMES[0].key;
+
+function buildTabs(){
+  const tabs = $('#tabs'); tabs.innerHTML="";
+  GAMES.forEach(g=>{
+    const b=el('button','tab'+(g.key===activeKey?' active':''), g.name);
+    b.addEventListener('click', ()=>{ activeKey=g.key; buildTabs(); route(); });
+    tabs.appendChild(b);
+  });
+}
+
+/* ========= Game: Match word ↔ sound ========= */
+function uiMatchAudio(){
+  const wrap = $('#gamewrap'); wrap.innerHTML="";
+  const top = el('div','row'); const reset = el('button','btn secondary','Reset'); reset.onclick=route;
+  top.append(el('div','pill','Zéi d’Wuert op de Laut 🎧')); top.append(reset); wrap.append(top);
+
+  // Pick a subset (e.g., 8 pairs)
+  const pool = shuffle([...ITEMS]).slice(0,8);
+  const words = el('div','card'); const wrow=el('div','row'); words.append(wrow);
+  pool.forEach(it=>{
+    const btn = el('div','word-card', `<span class="play-icon">▶</span> ${it.label}`);
+    btn.draggable=true; btn.dataset.id=it.id; btn.addEventListener('click',e=>{ if(e.target.closest('.play-icon')) playWordByLabel(it.label); });
+    btn.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/plain', it.id); });
+    wrow.append(btn);
+  });
+
+  const aud = el('div','grid'); aud.style.gridTemplateColumns='repeat(2,1fr)';
+  aud.classList.add('pairgrid');
+  pool.forEach(it=>{
+    const card = el('div','card audiocard');
+    card.dataset.id = it.id;
+    const play = el('button','btn','▶ Lauschteren'); play.onclick=()=>playWordByLabel(it.label);
+    const dz   = el('div','drop','Drop: Wuert');
+    dz.addEventListener('dragover',e=>{ e.preventDefault(); dz.classList.add('over'); });
+    dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+    dz.addEventListener('drop',e=>{
+      e.preventDefault(); dz.classList.remove('over');
+      const id=e.dataTransfer.getData('text/plain');
+      if(id===it.id){ dz.textContent = ITEMS.find(x=>x.id===id).label; dz.style.borderColor="#4f7ca0"; setScore(score+1); fb('Richteg!'); }
+      else fb('Nach eng Kéier', false);
+    });
+    card.append(play,dz); aud.append(card);
+  });
+
+  wrap.append(words, aud);
+}
+
+/* ========= Game: Spell the word ========= */
+function uiSpell(){
+  const wrap = $('#gamewrap'); wrap.innerHTML="";
+  const all = shuffle([...ITEMS]);
+  let idx = 0;
+
+  const head = el('div','toolbar');
+  const next = el('button','btn secondary','Nei Wuert'); head.append(el('div','pill','Zéi d’Buschtawen op d’Plaze'), next);
+  wrap.append(head);
+
+  const zone = el('div','grid'); zone.style.gridTemplateColumns='1fr 1fr'; zone.style.gap='.8rem'; wrap.append(zone);
+
+  function round(){
+    zone.innerHTML="";
+    const it = all[idx % all.length];
+    const lex = getLex(it.id);
+    const img = el('div','card imgbox'); img.append(el('img','',null)); img.querySelector('img').src=it.img; zone.append(img);
+
+    const task = el('div','card');
+    const noun = lex.noun;
+    const letters = [...noun.replace(/\s+/g,'')];
+    const shuffled = shuffle(letters.slice());
+    const slots = el('div','slots');
+    letters.forEach((ch,i)=>{
+      const s = el('div','slot'); s.dataset.idx=i; s.dataset.ch=ch;
+      s.addEventListener('dragover',e=>e.preventDefault());
+      s.addEventListener('drop',e=>{
+        e.preventDefault();
+        const text=e.dataTransfer.getData('text/plain');
+        if(!s.textContent){ s.textContent=text; check(); }
+      });
+      slots.append(s);
+    });
+    const bank = el('div','letters');
+    shuffled.forEach(ch=>{
+      const l = el('div','letter', ch);
+      l.draggable=true;
+      l.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain', ch));
+      bank.append(l);
+    });
+
+    const showWord = el('div','big', `(${lex.article ? lex.article+' ' : ''}${noun})`);
+    task.append(showWord, slots, bank);
+    zone.append(task);
+
+    function check(){
+      const got = [...slots.children].map(s=>s.textContent||'').join('');
+      if(got.length!==letters.length) return;
+      if(got===letters.join('')){ setScore(score+1); fb('Super!'); setTimeout(()=>{ idx++; round(); }, 400); }
+      else fb('Nee, nach eng Kéier', false);
     }
   }
+  next.onclick=round; round();
+}
 
-  /* ============ SINGLE SOURCE OF TRUTH ============ */
-  const ITEMS = [
-    {id:'schoulsak',   label:"de Schoulsak",      img:"https://i.postimg.cc/bdTXYnWk/23.png"},
-    {id:'buch',        label:"d'Buch",            img:"https://i.postimg.cc/nMpTLDYK/temp-Image5-PKPI3.avif"},
-    {id:'heft',        label:"d'Heft",            img:"https://i.postimg.cc/F1QmHNR5/17.png"},
-    {id:'classeur',    label:"de Classeur",       img:"https://i.postimg.cc/LnxMDPV2/20.png"},
-    {id:'schachtel',   label:"d'Schachtel",       img:"https://i.postimg.cc/LJ8b80LM/8.png"},
-    {id:'blaisteftsf', label:"d'Bläistëftsfaarf", img:"https://i.postimg.cc/RJCYyM72/16.png"},
-    {id:'tuschfaarf',  label:"d'Tuschfaarf",      img:"https://i.postimg.cc/bD9MmGtQ/15.png"},
-    {id:'lineal',      label:"de Lineal",         img:"https://i.postimg.cc/14DTCFsb/14.png"},
-    {id:'gummi',       label:"de Gummi",          img:"https://i.postimg.cc/t1xQ9MG4/21.png"},
-    {id:'scheier',     label:"d'Schéier",         img:"https://i.postimg.cc/HcXSNGDb/16.png"},
-    {id:'pech',        label:"de Pech",           img:"https://i.postimg.cc/vcMKpmmT/7.png"},
-    {id:'tafel',       label:"d'Tafel",           img:"https://i.postimg.cc/GTLjgWhg/temp-Image-Oxa-Tk-S.avif"},
-    {id:'kraid',       label:"d'Kräid",           img:"https://i.postimg.cc/fVqgtjfS/15.png"},
-    {id:'blat',        label:"d'Blat Pabeier",    img:"https://i.postimg.cc/dLBfvK7B/13.png"},
-    {id:'schwamp',     label:"de Schwamp",        img:"https://i.postimg.cc/kBX024PZ/24.png"},
-    {id:'blaisteft',   label:"de Bläistëft",      img:"https://i.postimg.cc/tnGcRqtr/6.png"},
-    {id:'spetzer',     label:"de Spëtzer",        img:"https://i.postimg.cc/njf8rGnY/22.png"},
-    {id:'leierin',     label:"d'Léierin",         img:"https://i.postimg.cc/qh0cgPnB/temp-Imagevl-Joig.avif"}
-  ];
+/* ========= Game: Article picker ========= */
+function uiArticle(){
+  const wrap = $('#gamewrap'); wrap.innerHTML="";
+  const eligible = ITEMS.map(x=>getLex(x.id)).filter(x=>x.article); // only items with article filled/guessed
+  if(!eligible.length){ wrap.textContent="Fëllt w.e.g. d’Artikelen am LEXICON aus fir dëst Spill."; return; }
 
-  /* ============ HELPERS ============ */
-  const norm = s => s.toLowerCase()
-                     .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-                     .replace(/[\u2019\u2018\u0060]/g,"'")
-                     .replace(/\s+/g," ")
-                     .trim();
+  const head = el('div','toolbar'); const next=el('button','btn secondary','Weider'); head.append(el('div','pill','Wiel de richtegen Artikel'), next);
+  wrap.append(head);
 
-  let score=0, challenge=false, secs=60, timer=null, dragged=null;
-  const setScore = v => document.getElementById('score').textContent=v;
-  function show(msg, ok){
-    const f=document.getElementById('feedback');
-    f.textContent=msg; f.className='feedback '+(ok?'correct':'incorrect')+' show';
-    setTimeout(()=>f.classList.remove('show'), 900);
+  const area = el('div','grid'); area.style.gridTemplateColumns='1fr 1fr'; area.style.gap='.8rem'; wrap.append(area);
+
+  let cur=null;
+  function round(){
+    area.innerHTML=""; cur = random(eligible);
+    const img = el('div','card imgbox'); img.append(el('img')); img.querySelector('img').src=cur.img;
+    const q   = el('div','card');
+    q.append(el('div','big', `_____ ${cur.noun}`));
+    const opts = ["de","den","d'"];
+    const choices = el('div','choices');
+    shuffle(opts.slice()).forEach(o=>{
+      const b=el('button','choice',o); b.onclick=()=>{
+        if(o===cur.article){ setScore(score+1); fb('Richteg!'); round(); }
+        else fb('Nee, probéier nach eng Kéier', false);
+      };
+      choices.append(b);
+    });
+    q.append(choices);
+    area.append(img,q);
   }
+  next.onclick=round; round();
+}
 
-  function buildUI(){
-    const words = document.getElementById('wordContainer');
-    const board = document.getElementById('board');
+/* ========= Game: Plural quiz ========= */
+function uiPlural(){
+  const wrap = $('#gamewrap'); wrap.innerHTML="";
+  const eligible = ITEMS.map(x=>getLex(x.id)).filter(x=>x.plural);
+  if(!eligible.length){ wrap.textContent="Fëllt w.e.g. d’Plurale am LEXICON aus fir dëst Spill."; return; }
 
-    // build word cards
-    words.innerHTML = "";
-    ITEMS.forEach(it=>{
-      const card = document.createElement('div');
-      card.className = 'word-card';
-      card.draggable = true;
-      card.dataset.id = it.id;
-      card.dataset.word = it.label;
-      card.innerHTML = `<span class="play-icon" title="Play">▶</span> ${it.label}`;
-      words.appendChild(card);
+  const head = el('div','toolbar'); const next=el('button','btn secondary','Weider'); head.append(el('div','pill','Wielt de richtege Plural'), next);
+  wrap.append(head);
+
+  const box = el('div','card'); wrap.append(box);
+
+  function round(){
+    box.innerHTML="";
+    const cur = random(eligible);
+    const distractors = shuffle(eligible.filter(x=>x.id!==cur.id)).slice(0,2).map(x=>x.plural);
+    const opts = shuffle([cur.plural, ...distractors]);
+
+    box.append(el('div','big', `${cur.label} → ?`));
+    const c = el('div','choices');
+    opts.forEach(o=>{
+      const b=el('button','choice',o); b.onclick=()=>{
+        if(o===cur.plural){ setScore(score+1); fb('Richteg!'); round(); }
+        else fb('Nee, nach eng Kéier', false);
+      };
+      c.append(b);
     });
-
-    // build drop zones (6×3 grid)
-    board.innerHTML = "";
-    ITEMS.forEach(it=>{
-      const z = document.createElement('div');
-      z.className='drop-zone';
-      z.dataset.id = it.id;           // ID for matching
-      z.dataset.correct = it.label;   // text fallback
-      z.dataset.filled='0';
-      const img = document.createElement('img');
-      img.src = it.img; img.alt = it.label; img.onerror = ()=>{ img.style.display='none'; };
-      z.appendChild(img);
-      board.appendChild(z);
-    });
-
-    wireDnD();
-    wireAudio();
+    box.append(c);
   }
+  next.onclick=round; round();
+}
 
-  function resetBoard(){
-    document.querySelectorAll('.word-card').forEach(c=>{
-      c.style.display='inline-flex'; c.classList.remove('correct-flash');
-    });
-    document.querySelectorAll('.drop-zone').forEach(z=>{
-      z.classList.remove('correct'); z.dataset.filled='0';
-      const dw=z.querySelector('.dropped-word'); if(dw) dw.remove();
-    });
-    score=0; setScore(score);
+/* ========= Game: “Lies de Saz” ========= */
+function uiSentence(){
+  const wrap = $('#gamewrap'); wrap.innerHTML="";
+  const eligible = ITEMS.map(x=>getLex(x.id)).filter(x=>x.plural); // needs plural
+  if(!eligible.length){ wrap.textContent="Fëllt d’Plurale am LEXICON aus fir Sätz ze bauen (z. B. „Dräi Classeuren sinn blo.“)."; return; }
+
+  const head = el('div','toolbar');
+  const play = el('button','btn secondary','▶ Ofspillen');
+  const next = el('button','btn','Neie Saz');
+  head.append(el('div','pill','Lies/loss ofspillen'), play, next);
+  wrap.append(head);
+
+  const card = el('div','card'); wrap.append(card);
+
+  let cur=null;
+  function build(){
+    cur = {
+      n: random(NUMBERS),
+      item: random(eligible),
+      col: random(COLOURS)
+    };
+    const sentence = `${numWord(cur.n)} ${cur.item.plural} sinn ${cur.col.name}.`;
+    card.innerHTML="";
+    const row = el('div','row');
+    const img = el('div','imgbox'); img.append(el('img')); img.querySelector('img').src = cur.item.img;
+    const text = el('div','big', sentence);
+    const chip = el('div','colorchip'); chip.style.background=cur.col.hex;
+    row.append(img, text, chip); card.append(row);
   }
+  play.onclick=()=>{ if(cur){ const s = `${cur.n} ${cur.item.plural} sinn ${cur.col.name}.`; speak(s); } };
+  next.onclick=build; build();
+}
 
-  function startChallenge(){
-    if(timer) clearInterval(timer);
-    challenge=true; secs=60; resetBoard();
-    document.getElementById('timer').style.display='inline-block';
-    document.getElementById('time').textContent=secs;
-    timer=setInterval(()=>{ secs--; document.getElementById('time').textContent=secs; if(secs<=0) endChallenge(); },1000);
-    show('60-Sekonnen Challenge!', true);
-  }
-  function endChallenge(){
-    challenge=false; if(timer) clearInterval(timer);
-    document.getElementById('timer').style.display='none';
-    show('Fäerdeg! Score: '+score, true);
-  }
+/* ========= Router ========= */
+function route(){
+  setScore(0);
+  const m = {
+    'match-audio': uiMatchAudio,
+    'spell': uiSpell,
+    'article': uiArticle,
+    'plural': uiPlural,
+    'sentence': uiSentence
+  };
+  (m[activeKey]||uiMatchAudio)();
+}
 
-  function wireAudio(){
-    const soundBtn = document.getElementById('soundToggle');
-    soundBtn.addEventListener('click', ()=>{
-      soundEnabled = !soundEnabled;
-      soundBtn.textContent = soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
-      soundBtn.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
-    });
-    document.querySelectorAll('.word-card').forEach(card=>{
-      const icon = card.querySelector('.play-icon');
-      icon.addEventListener('click', (e)=>{ e.stopPropagation(); playWord(card.dataset.word); });
-      card.addEventListener('click', ()=>{ if(!card.classList.contains('dragging')) playWord(card.dataset.word); });
-    });
-  }
+/* ========= Utilities ========= */
+function shuffle(a){ const r=[...a]; for(let i=r.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]]; } return r; }
+function random(a){ return a[Math.floor(Math.random()*a.length)]; }
+function numWord(n){
+  // Minimal LB numbers for 2–10 (adjust if you prefer variants)
+  const map={2:"Zwee",3:"Dräi",4:"Véier",5:"Fënnef",6:"Sechs",7:"Siwen",8:"Aacht",9:"Néng",10:"Zéng"};
+  return map[n] || String(n);
+}
 
-  function wireDnD(){
-    const cards = document.querySelectorAll('.word-card');
-    const zones = document.querySelectorAll('.drop-zone');
-
-    cards.forEach(c=>{
-      c.addEventListener('dragstart',e=>{
-        dragged=c; c.classList.add('dragging');
-        e.dataTransfer.setData('text/plain', c.dataset.id);
-        e.dataTransfer.effectAllowed='move';
-      });
-      c.addEventListener('dragend',()=>c.classList.remove('dragging'));
-    });
-
-    zones.forEach(z=>{
-      z.addEventListener('dragover',e=>{ e.preventDefault(); z.classList.add('drag-over'); });
-      z.addEventListener('dragleave',()=> z.classList.remove('drag-over'));
-      z.addEventListener('drop',e=>{
-        e.preventDefault(); z.classList.remove('drag-over');
-        if(!dragged) return;
-        if(z.dataset.filled==='1'){ show('Dës Plaz ass schonn fäerdeg.', false); dragged=null; return; }
-
-        // ✅ robust match: ID or normalized label
-        const idMatch  = (dragged.dataset.id === z.dataset.id);
-        const textMatch = (norm(dragged.dataset.word) === norm(z.dataset.correct));
-        if(idMatch || textMatch){
-          score++; setScore(score);
-          z.classList.add('correct'); z.dataset.filled='1';
-          dragged.classList.add('correct-flash'); dragged.style.display='none';
-
-          const dw=document.createElement('div');
-          dw.className='dropped-word';
-          dw.textContent = dragged.dataset.word;
-          z.appendChild(dw);
-
-          show('Richteg!', true);
-
-          const total = document.querySelectorAll('.word-card').length;
-          const hidden = document.querySelectorAll('.word-card[style*="display: none"]').length;
-          if(hidden === total){
-            setTimeout(()=> challenge ? endChallenge() : show('Alles richteg! Super!', true), 400);
-          }
-        } else {
-          show('Probéier nach eng Kéier!', false);
-        }
-        dragged=null;
-      });
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded',()=>{
-    document.getElementById('challengeBtn').addEventListener('click', startChallenge);
-    if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = ()=>{};
-    buildUI();
-  });
+/* ========= Init ========= */
+document.addEventListener('DOMContentLoaded', ()=>{
+  if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = ()=>{};
+  const soundBtn = $('#soundToggle');
+  soundBtn.onclick=()=>{ soundEnabled=!soundEnabled; soundBtn.textContent=soundEnabled?"🔊 Sound: ON":"🔇 Sound: OFF"; soundBtn.setAttribute('aria-pressed', soundEnabled?'true':'false'); };
+  buildTabs(); route();
+});
 </script>
 </body>
 </html>
