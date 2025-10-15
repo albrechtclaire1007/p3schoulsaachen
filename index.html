@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Schoulsaachen</title>
 <style>
-  /* Font */
   @font-face{
     font-family:'Schoulschrëft';
     src:url('https://raw.githubusercontent.com/albrechtclaire1007/schoulschreft/main/schoulschreft_bold%5B2%5D.TTF') format('truetype');
@@ -13,7 +12,6 @@
   }
 
   :root{
-    /* P3 blue palette to keep your series coherence while matching the P1 layout */
     --blue-mid:#8ab6d9; --blue-light:#cfe4f6; --blue-dark:#4f7ca0;
     --ink:#173c57; --white:#fff; --bad:#ffcccc; --ok:#b7f0c8;
     --border:3px;
@@ -22,7 +20,7 @@
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; outline:none;}
   html,body{height:100%; margin:0; background:linear-gradient(135deg,var(--blue-mid),var(--blue-light)); color:var(--ink); font-family:'Schoulschrëft', Arial, sans-serif;}
 
-  /* Top bar (like P1) */
+  /* Top bar (P1-style, no sound toggle) */
   .top{
     position:sticky; top:8px; z-index:10; display:flex; gap:10px; align-items:center; justify-content:center;
     background:var(--white); border:var(--border) solid var(--blue-dark); border-radius:18px;
@@ -36,20 +34,15 @@
   }
   .iconBtn:active{ transform:scale(.98); }
   .flow{opacity:.9; font-size:1rem; padding:0 .4rem; min-width:10ch; text-align:center;}
-  .sep{width:1px; height:20px; background:#ddd; margin:0 6px;}
-  .toggle{
-    border:var(--border) solid var(--ink); background:var(--white); color:var(--ink);
-    padding:.25rem .6rem; border-radius:14px; cursor:pointer; font-size:1rem;
-  }
   .hidden{display:none !important;}
 
   .wrap{min-height:100%; display:flex; flex-direction:column; align-items:center; gap:2.5vmin; padding:2.5vmin 3vmin 4vmin;}
   h1{margin:.2rem 0 0; text-align:center; font-size:clamp(2rem,6vmin,4.2rem); color:var(--ink);}
 
-  /* Generic grid / tokens (P1 style) */
+  /* Generic grid / tokens */
   .grid{
     width:95vw; max-width:2000px; display:grid; gap:2vmin;
-    grid-template-columns: repeat(auto-fill, minmax(14vmin, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(16vmin, 1fr));
     align-items:stretch;
   }
   .imgToken{
@@ -57,9 +50,11 @@
     display:grid; place-items:center; aspect-ratio:1/1; cursor:pointer;
     transition:transform .1s ease, border-color .15s ease, filter .15s ease, background .15s ease;
     box-shadow:0 10px 26px rgba(0,0,0,.08);
+    padding:6px;
   }
   .imgToken:active{ transform:scale(.97); }
-  .imgToken img{ width:90%; height:90%; object-fit:contain; }
+  .imgToken img{ width:78%; height:70%; object-fit:contain; }
+  .caption{display:block; text-align:center; font-size:clamp(1rem,2.8vmin,1.4rem); margin-top:.2rem;}
 
   .btn{
     border:var(--border) solid var(--ink); background:var(--white); color:var(--ink);
@@ -70,16 +65,15 @@
   .flash-good{ background:var(--ok) !important; border-color:var(--ok) !important; }
   .flash-bad{ background:var(--bad) !important; border-color:var(--bad) !important; }
 
-  /* Big centered image box (for G3, also reused vertically) */
+  /* Big image boxes */
   .bigBox{
     width:min(70vmin,90%); aspect-ratio:1/1; background:#fff;
     border:12px solid var(--blue-mid); border-radius:40px; display:grid; place-items:center;
-    position:relative; cursor:pointer;
+    position:relative; cursor:default;
     box-shadow:0 10px 30px rgba(0,0,0,.08);
-    transition:transform .12s ease;
   }
-  .bigBox:active{ transform:scale(.98); }
   .bigBox img{ width:85%; height:85%; object-fit:contain; }
+  .bigBox.small img{ width:66%; height:66%; } /* ~ 2/3 size for G2 */
   .fade{ animation:fadeIn .35s ease; }
   @keyframes fadeIn{ from{opacity:0; transform:scale(.9)} to{opacity:1; transform:scale(1)} }
 
@@ -99,7 +93,10 @@
   .choices{ display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; }
   .choice{ background:#fff; border:4px solid var(--ink); border-radius:12px; padding:.35rem .7rem; cursor:pointer; font-size:clamp(1.6rem,4.6vmin,2.2rem); }
 
-  /* G5 inline tokens */
+  /* G3 two-column centered */
+  .row2{ display:flex; gap:min(4vmin,28px); align-items:center; justify-content:center; flex-wrap:wrap; }
+
+  /* G5 inline */
   .inlineRow{ display:flex; align-items:center; justify-content:center; gap:min(2.4vmin,18px); flex-wrap:wrap; }
   .numSq, .colSq{
     display:grid; place-items:center; width:min(16vmin,160px); aspect-ratio:1/1;
@@ -120,49 +117,51 @@
 </head>
 <body>
 
-<!-- Top nav (P1-style) -->
+<!-- Top nav -->
 <div class="top">
   <button class="iconBtn" id="prev">◀</button>
   <span class="flow" id="flowLabel">1. Spill</span>
   <button class="iconBtn" id="next">▶</button>
-  <span class="sep"></span>
-  <button class="toggle" id="soundToggle">Toun: Un</button>
 </div>
 
-<!-- G1: Lauschter a klick op dat richtegt Bild (autoplay on target, no per-card buttons) -->
+<!-- G1: Lauschter a klick op dat richtegt Bild (autoplay target) -->
 <section class="wrap" id="g1">
   <h1>Lauschter a klick op dat richtegt Bild</h1>
   <div class="grid" id="grid1"></div>
   <div><button class="btn" id="play1">Toun nach eng Kéier</button></div>
 </section>
 
-<!-- G2: Schreif d’Wuert – no word shown; image → slots → letters -->
+<!-- G2: Schreif d’Wuert – image (~2/3) → slots → letters -->
 <section class="wrap hidden" id="g2">
   <h1>Schreif d’Wuert</h1>
-  <div class="bigBox" style="cursor:default;"><img id="spellImg" alt=""></div>
+  <div class="bigBox small"><img id="spellImg" alt=""></div>
   <div class="slots" id="spellSlots"></div>
   <div class="letters" id="spellBank"></div>
   <div><button class="btn" id="spellNext">Weider</button></div>
 </section>
 
-<!-- G3: Artikel wielen – centered, image on top, choices under -->
+<!-- G3: Artikel wielen – centered, image left, options right -->
 <section class="wrap hidden" id="g3">
   <h1>Wiel den Artikel</h1>
-  <div class="bigBox" style="cursor:default;"><img id="artImg" alt=""></div>
-  <div style="font-size:clamp(2rem,5.6vmin,3.2rem); text-align:center; margin-top:10px;" id="artWord">_____ Numm</div>
-  <div class="choices" id="artChoices"></div>
-  <div><button class="btn" id="artNext">Weider</button></div>
+  <div class="row2">
+    <div class="bigBox" style="width:min(46vmin,70%);"><img id="artImg" alt=""></div>
+    <div>
+      <div style="font-size:clamp(2rem,5.6vmin,3.2rem); text-align:center; margin-bottom:12px;" id="artWord">_____ Numm</div>
+      <div class="choices" id="artChoices"></div>
+      <div style="text-align:center; margin-top:12px;"><button class="btn" id="artNext">Weider</button></div>
+    </div>
+  </div>
 </section>
 
-<!-- G4: Plural – big word centered; generates distractors (-en/-er/-s + vowel tweaks) -->
+<!-- G4: De Pluriel vun de Schoulsaachen -->
 <section class="wrap hidden" id="g4">
-  <h1>Plural</h1>
+  <h1>De Pluriel vun de Schoulsaachen</h1>
   <div style="font-size:clamp(2.4rem,6.2vmin,3.6rem); text-align:center;" id="pluWord">Wuert</div>
   <div class="choices" id="pluChoices"></div>
   <div><button class="btn" id="pluNext">Weider</button></div>
 </section>
 
-<!-- G5: Number square – image – sinn – colour square (no full sentence text) -->
+<!-- G5: Number square – image – sinn – colour square -->
 <section class="wrap hidden" id="g5">
   <h1>Lies de Saz</h1>
   <div class="inlineRow" id="sentRow">
@@ -177,7 +176,7 @@
 <audio id="speaker" preload="auto"></audio>
 
 <script>
-/* ---------- DATA (from your previous P3 code) ---------- */
+/* ---------- DATA ---------- */
 const AUDIO_BASE = "https://github.com/albrechtclaire1007/p3schoulsaachen/raw/refs/heads/main/";
 const AUDIO_FILES = {
   "d'Buch": "BUCH.mp3",
@@ -220,14 +219,21 @@ const ITEMS = [
   {id:'leierin',     label:"d'Léierin",         img:"https://i.postimg.cc/qh0cgPnB/temp-Imagevl-Joig.avif"}
 ];
 
-/* Optional LEXICON: add confirmed plurals to enable G4 + improve G5 choice pool */
+/* Optional LEXICON for plural game (fill more when ready) */
 const LEXICON = {
-  // id: { article:"de|den|d'", noun:"...", plural:"..." }
-  classeur: { article:"de", noun:"Classeur", plural:"Classeuren" },
-  // Fill more when you have the sheet; missing ones are skipped in G4 on purpose.
+  classeur:   { article:"de",  noun:"Classeur",         plural:"Classeuren" },
+  schoulsak:  { article:"de",  noun:"Schoulsak",        plural:"Schoulsäck" },
+  scheier:    { article:"eng", noun:"Schéier",          plural:"Schéieren" },
+  tafel:      { article:"eng", noun:"Tafel",            plural:"Tafelen" },
+  leierin:    { article:"eng", noun:"Léierin",          plural:"Léierinnen" },
+  schachtel:  { article:"eng", noun:"Schachtel",        plural:"Schachtelen" },
+  tuschfaarf: { article:"eng", noun:"Tuschfaarf",       plural:"Tuschfaarwen" },
+  blaisteftsf:{ article:"eng", noun:"Bläistëftsfaarf",  plural:"Bläistëftsfaarwen" },
+  blaisteft:  { article:"de",  noun:"Bläistëft",        plural:"Bläistëfter" },
+  lineal:     { article:"de",  noun:"Lineal",           plural:"Linealen" },
+  buch:       { article:"d'",  noun:"Buch",             plural:"Bicher" }
 };
 
-/* Colours & numbers for G5 */
 const COLOURS = [
   {name:"blo",  hex:"#4C78A8"},
   {name:"rout", hex:"#E45756"},
@@ -242,13 +248,11 @@ const NUMBERS = [2,3,4,5,6,7,8,9,10];
 
 /* ---------- UTIL ---------- */
 const speaker = document.getElementById('speaker');
-let soundOn = true;
+async function playSound(src){ try{ if(speaker.src!==src) speaker.src=src; await speaker.play(); }catch(e){} }
 function playLabel(label){
-  if(!soundOn) return;
   const f = AUDIO_FILES[label];
   if(f){ playSound(AUDIO_BASE + encodeURIComponent(f)); }
 }
-async function playSound(src){ try{ if(speaker.src!==src) speaker.src=src; await speaker.play(); }catch(e){} }
 function flash(el, ok){
   el.classList.remove('flash-good','flash-bad');
   void el.offsetWidth;
@@ -290,9 +294,6 @@ function showPage(i){
 prevBtn.onclick = ()=> showPage(pageIdx-1);
 nextBtn.onclick = ()=> showPage(pageIdx+1);
 
-const soundToggle = document.getElementById('soundToggle');
-soundToggle.onclick = ()=>{ soundOn=!soundOn; soundToggle.textContent = soundOn ? 'Toun: Un' : 'Toun: Aus'; };
-
 /* ---------- G1: Listen & click correct image (autoplay on target) ---------- */
 const grid1 = document.getElementById('grid1');
 const play1 = document.getElementById('play1');
@@ -301,20 +302,20 @@ let target1 = null;
 
 function layoutG1(){
   grid1.innerHTML = "";
+  // show captions (words) under each image
   shuffle([...ITEMS]).forEach(it=>{
     const b = document.createElement('button');
     b.className = 'imgToken';
-    const img = document.createElement('img');
-    img.src = it.img; img.alt = it.label;
-    b.appendChild(img);
+    b.dataset.id = it.id;
+    b.innerHTML = `<img src="${it.img}" alt="${it.label}"><span class="caption">${it.label}</span>`;
     b.onclick = ()=> checkG1(it, b);
     grid1.appendChild(b);
   });
 }
 function nextG1(){
   if(bag1.length===0){ showPage(pageIdx+1); return; }
-  target1 = bag1.pop();
-  playLabel(target1.label); // AUTOPLAY (respects Toun)
+  target1 = bag1.pop();            // target locked by id
+  playLabel(target1.label);        // autoplay uses the exact label mapping
 }
 function checkG1(it, el){
   const ok = (it.id === target1.id);
@@ -334,27 +335,23 @@ function setupSpellRound(){
   if(bag2.length===0){ showPage(pageIdx+1); return; }
   cur2 = bag2.pop();
   const lex = getLex(cur2.id);
-  const noun = lex.noun.replace(/\s+/g,''); // letters only
+  const noun = lex.noun.replace(/\s+/g,'');
   spellImg.src = cur2.img; spellImg.alt = lex.label;
   spellImg.classList.remove('fade'); void spellImg.offsetWidth; spellImg.classList.add('fade');
 
-  // build slots
   spellSlots.innerHTML = "";
   spellBank.innerHTML  = "";
   const letters = [...noun];
   const shuffled = shuffle(letters.slice());
 
-  // slots
   const slotEls = letters.map((_ch,i)=>{
     const s = document.createElement('div'); s.className='slot'; s.dataset.idx=i; s.dataset.ch='';
-    // drop
     s.addEventListener('dragover',e=>e.preventDefault());
     s.addEventListener('drop',e=>{
       e.preventDefault();
       const ch = e.dataTransfer.getData('text/plain');
       if(!s.textContent){ s.textContent = ch; s.dataset.ch = ch; checkSpell(); }
     });
-    // click to remove
     s.addEventListener('click',()=>{
       if(!s.textContent) return;
       const ch = s.textContent; s.textContent=''; s.dataset.ch='';
@@ -364,7 +361,6 @@ function setupSpellRound(){
     return s;
   });
 
-  // bank (drag + click to place in first empty slot)
   function addLetterToBank(ch){
     const l = document.createElement('div'); l.className='letter'; l.textContent = ch; l.draggable=true;
     l.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain', ch));
@@ -385,16 +381,16 @@ function setupSpellRound(){
 }
 spellNext.onclick = setupSpellRound;
 
-/* ---------- G3: Article picker (centered) ---------- */
+/* ---------- G3: Article picker (image left, options right) ---------- */
 const artImg     = document.getElementById('artImg');
 const artWord    = document.getElementById('artWord');
 const artChoices = document.getElementById('artChoices');
 const artNext    = document.getElementById('artNext');
-let bag3 = shuffle([...ITEMS]); let cur3=null;
+let bag3a = shuffle([...ITEMS]); let cur3=null;
 
 function setupArtRound(){
-  if(bag3.length===0){ showPage(pageIdx+1); return; }
-  cur3 = bag3.pop();
+  if(bag3a.length===0){ showPage(pageIdx+1); return; }
+  cur3 = bag3a.pop();
   const lex = getLex(cur3.id);
   artImg.src = cur3.img; artImg.alt = lex.label;
   artImg.classList.remove('fade'); void artImg.offsetWidth; artImg.classList.add('fade');
@@ -413,13 +409,14 @@ function setupArtRound(){
 }
 artNext.onclick = setupArtRound;
 
-/* ---------- G4: Plural quiz (big word + smart distractors) ---------- */
+/* ---------- G4: Plural quiz (no double consonant tricks) ---------- */
 const pluWord    = document.getElementById('pluWord');
 const pluChoices = document.getElementById('pluChoices');
 const pluNext    = document.getElementById('pluNext');
-let pool4 = ITEMS.map(i=>getLex(i.id)).filter(x=>x.plural); // only items with confirmed plural
+let pool4 = ITEMS.map(i=>getLex(i.id)).filter(x=>x.plural);
 
 function pluralDistractors(baseSing, correct){
+  // only vowel tweaks + -en/-er/-s (no double consonants)
   const stems = [
     baseSing.replace(/e/g,'ë').replace(/a/g,'ä'),
     baseSing.replace(/ë/g,'e').replace(/ä/g,'a'),
@@ -427,18 +424,12 @@ function pluralDistractors(baseSing, correct){
   ];
   const suffixes = ['en','er','s'];
   const cand = new Set();
-  stems.forEach(st=>{
-    suffixes.forEach(suf=> cand.add(st + suf));
-  });
+  stems.forEach(st=> suffixes.forEach(suf=> cand.add(st + suf)));
   cand.delete(correct);
-  // Add a couple funny near-misses (swap r/l, duplicate vowel)
-  cand.add(baseSing.replace(/l/,'ll')+'en');
-  cand.add(baseSing.replace(/r/,'rr')+'er');
   return shuffle([...cand]).slice(0,3);
 }
-
 function setupPluralRound(){
-  if(pool4.length===0){ // nothing to ask until lexicon filled
+  if(!pool4.length){
     pluWord.textContent="Fëllt d’Plurale fir méi Froen.";
     pluChoices.innerHTML="";
     return;
@@ -468,29 +459,21 @@ const sentNext= document.getElementById('sentNext');
 
 function setupSentence(){
   const it = ITEMS[Math.floor(Math.random()*ITEMS.length)];
-  const lex = getLex(it.id);
   const n = NUMBERS[Math.floor(Math.random()*NUMBERS.length)];
   const c = COLOURS[Math.floor(Math.random()*COLOURS.length)];
   sentNum.textContent = n;
-  sentImg.src = it.img; sentImg.alt = lex.label;
+  sentImg.src = it.img; sentImg.alt = it.label;
   sentCol.style.background = c.hex;
-  // (No full sentence text — only blocks as requested)
 }
 sentNext.onclick = setupSentence;
 
 /* ---------- INIT ---------- */
 function init(){
-  // G1
   layoutG1(); nextG1();
-  // G2
   setupSpellRound();
-  // G3
   setupArtRound();
-  // G4
   setupPluralRound();
-  // G5
   setupSentence();
-  // start
   showPage(0);
 }
 init();
