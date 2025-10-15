@@ -3,435 +3,249 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Schoulsaachen</title>
+<title>P3 – Schoulsaachen</title>
 <style>
   @font-face{
     font-family:'Schoulschrëft';
     src:url('https://raw.githubusercontent.com/albrechtclaire1007/schoulschreft/main/schoulschreft_bold%5B2%5D.TTF') format('truetype');
-    font-weight:bold; font-style:normal; font-display:swap;
+    font-weight:bold; font-display:swap;
   }
 
   :root{
     --blue-mid:#8ab6d9; --blue-light:#cfe4f6; --blue-dark:#4f7ca0;
-    --ink:#173c57; --white:#fff; --bad:#ffcccc; --ok:#b7f0c8; --border:3px;
+    --ink:#1f1f1f; --white:#fff; --ok:#b7f0c8; --bad:#ffcccc;
   }
 
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; outline:none;}
-  html,body{height:100%; margin:0; background:linear-gradient(135deg,var(--blue-mid),var(--blue-light)); color:var(--ink); font-family:'Schoulschrëft', Arial, sans-serif;}
+  html,body{margin:0; height:100%; background:linear-gradient(135deg,var(--blue-mid),var(--blue-light)); color:var(--ink); font-family:'Schoulschrëft',Arial,sans-serif;}
 
-  /* Top bar */
   .top{
-    position:sticky; top:8px; z-index:10; display:flex; gap:10px; align-items:center; justify-content:center;
-    background:var(--white); border:var(--border) solid var(--blue-dark); border-radius:18px;
-    padding:.35rem .6rem; margin:10px auto; width:fit-content; box-shadow:0 8px 24px rgba(0,0,0,.08);
+    position:sticky; top:8px; display:flex; gap:10px; align-items:center; justify-content:center;
+    background:var(--white); border:3px solid var(--blue-dark); border-radius:18px;
+    padding:.35rem .8rem; margin:10px auto; width:fit-content; box-shadow:0 6px 20px rgba(0,0,0,.1);
   }
   .iconBtn{
-    border:var(--border) solid var(--ink); background:var(--white); color:var(--ink);
-    padding:.25rem .7rem; border-radius:14px; cursor:pointer; font-size:1.4rem; line-height:1;
-    min-width:2.4rem; display:grid; place-items:center;
+    border:3px solid var(--ink); background:var(--white); color:var(--ink);
+    border-radius:14px; font-size:1.4rem; min-width:2.4rem; cursor:pointer;
   }
-  .iconBtn:active{ transform:scale(.98); }
-  .flow{opacity:.9; font-size:1rem; padding:0 .4rem; min-width:10ch; text-align:center;}
-  .hidden{display:none !important;}
+  .flow{font-size:1rem; min-width:8ch; text-align:center;}
+  .hidden{display:none!important;}
 
-  .wrap{min-height:100%; display:flex; flex-direction:column; align-items:center; gap:2.5vmin; padding:2.5vmin 3vmin 4vmin;}
-  h1{margin:.2rem 0 0; text-align:center; font-size:clamp(2rem,6vmin,4.2rem); color:var(--ink);}
+  .wrap{min-height:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+        gap:1.5vmin; padding:2vmin 3vmin 4vmin;}
+  h1{text-align:center; font-size:clamp(2rem,6vmin,4rem); margin:.5rem 0;}
 
   .btn{
-    border:var(--border) solid var(--ink); background:var(--white); color:var(--ink);
-    padding:.45rem .85rem; border-radius:14px; cursor:pointer; font-size:1.05rem; font-family:'Schoulschrëft', Arial, sans-serif;
+    border:3px solid var(--ink); background:var(--white); border-radius:14px;
+    padding:.4rem .9rem; cursor:pointer; font-family:'Schoulschrëft',Arial,sans-serif;
   }
-  .btn:active{ transform:scale(.98); }
 
-  .flash-good{ background:var(--ok) !important; border-color:var(--ok) !important; }
-  .flash-bad{ background:var(--bad) !important; border-color:var(--bad) !important; }
+  .flash-good{background:var(--ok)!important; border-color:var(--ok)!important;}
+  .flash-bad{background:var(--bad)!important; border-color:var(--bad)!important;}
 
-  /* G1: two lanes */
-  .g1wrap{width:95vw; max-width:1400px; display:grid; gap:2vmin; grid-template-columns: 1fr 1fr;}
-  .gridImgs{
-    display:grid; gap:2vmin; grid-template-columns: repeat(auto-fill, minmax(16vmin,1fr));
-    align-items:stretch;
+  /* ---------- GAME 1 ---------- */
+  .g1wrap{display:flex; flex-direction:column; align-items:center; width:95vw; max-width:1400px;}
+  .wordGrid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:1vmin; justify-items:center; margin-bottom:2vmin;
+  }
+  .wordCard{
+    background:#fff; border:5px solid var(--blue-mid); border-radius:18px;
+    padding:.6rem 1rem; text-align:center; font-size:clamp(1.1rem,2.4vmin,1.6rem);
+    cursor:pointer; box-shadow:0 5px 18px rgba(0,0,0,.08);
+  }
+  .wordCard.selected{outline:5px solid var(--blue-dark);}
+  .imgGrid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+    gap:1.4vmin; justify-items:center;
   }
   .imgToken{
-    background:var(--white); border:6px solid var(--blue-mid); border-radius:22px;
-    display:grid; place-items:center; aspect-ratio:1/1; cursor:pointer;
-    transition:transform .1s ease, border-color .15s ease, background .15s ease; box-shadow:0 10px 26px rgba(0,0,0,.08);
-    padding:6px;
+    background:#fff; border:6px solid var(--blue-mid); border-radius:22px;
+    aspect-ratio:1/1; display:grid; place-items:center;
+    cursor:pointer; transition:transform .1s; box-shadow:0 6px 18px rgba(0,0,0,.08);
   }
-  .imgToken:active{ transform:scale(.97); }
-  .imgToken img{ width:80%; height:80%; object-fit:contain; }
-  .gridWords{ display:flex; flex-direction:column; gap:1.2vmin; }
-  .wordCard{
-    background:#fff; border:6px solid var(--blue-mid); border-radius:18px;
-    padding:.45rem .8rem; font-size:clamp(1.1rem,3.2vmin,1.6rem); cursor:grab; display:flex; align-items:center; justify-content:space-between; gap:.6rem;
-    box-shadow:0 8px 22px rgba(0,0,0,.06); font-family:'Schoulschrëft', Arial, sans-serif;
-  }
-  .sndBtn{ border:var(--border) solid var(--ink); background:var(--white); border-radius:12px; padding:.2rem .5rem; cursor:pointer; }
-  .selected{ outline:6px solid var(--blue-dark); }
+  .imgToken img{width:80%; height:80%; object-fit:contain;}
+  .imgToken:active{transform:scale(.96);}
+  .toggleBox{margin-top:1vmin;}
 
-  /* Big boxes */
-  .bigBox{
-    width:min(70vmin,90%); aspect-ratio:1/1; background:#fff;
-    border:12px solid var(--blue-mid); border-radius:40px; display:grid; place-items:center;
-    box-shadow:0 10px 30px rgba(0,0,0,.08);
-  }
-  .bigBox img{ width:85%; height:85%; object-fit:contain; }
-  .bigBox.medium{ width:min(50vmin,72%);}           /* ≈ your red square size */
-  .bigBox.medium img{ width:66%; height:66%; }      /* ~2/3 image size */
-  .fade{ animation:fadeIn .35s ease; }
-  @keyframes fadeIn{ from{opacity:0; transform:scale(.9)} to{opacity:1; transform:scale(1)} }
+  /* ---------- GENERAL ELEMENTS ---------- */
+  .bigBox{width:min(60vmin,85%); aspect-ratio:1/1; border:10px solid var(--blue-mid);
+    border-radius:32px; display:grid; place-items:center; background:#fff; box-shadow:0 8px 24px rgba(0,0,0,.08);}
+  .bigBox img{width:80%; height:80%; object-fit:contain;}
+  .choices{display:flex; flex-wrap:wrap; justify-content:center; gap:.6rem;}
+  .choice{background:#fff; border:4px solid var(--ink); border-radius:12px; padding:.35rem .7rem;
+          cursor:pointer; font-size:clamp(1.6rem,4.6vmin,2rem); font-family:'Schoulschrëft',Arial,sans-serif;}
+  .labelBig{text-align:center; font-size:clamp(2rem,5vmin,3rem); margin-bottom:1vmin;}
 
-  /* Spelling */
-  .slots{ display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; padding:.4rem; }
-  .slot{
-    min-width:3.2rem; min-height:4.0rem; border-bottom:6px solid var(--ink);
-    display:grid; place-items:center; font-size:clamp(2rem,5.8vmin,3.2rem);
-  }
-  .letters{ display:flex; gap:.5rem; flex-wrap:wrap; justify-content:center; }
-  .letter{
-    background:#fff; border:4px solid var(--ink); border-radius:12px; padding:.35rem .55rem;
-    cursor:pointer; font-size:clamp(2rem,5.8vmin,3.2rem); min-width:3.2rem; text-align:center;
-  }
+  .flash-good{background:var(--ok)!important;}
+  .flash-bad{background:var(--bad)!important;}
 
-  /* Choices – Schoulschrëft enforced */
-  .choices{ display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; }
-  .choice{ background:#fff; border:4px solid var(--ink); border-radius:12px; padding:.35rem .7rem;
-           cursor:pointer; font-size:clamp(1.6rem,4.6vmin,2.2rem); font-family:'Schoulschrëft', Arial, sans-serif; }
-
-  /* G3 two-column centered */
-  .row2{ display:flex; gap:min(4vmin,28px); align-items:center; justify-content:center; flex-wrap:wrap; }
-  .labelBig{ font-size:clamp(2rem,5.6vmin,3.2rem); text-align:center; margin-bottom:12px; font-family:'Schoulschrëft', Arial, sans-serif; }
-
-  /* G5 inline */
-  .inlineRow{ display:flex; align-items:center; justify-content:center; gap:min(2.4vmin,18px); flex-wrap:wrap; }
-  .numSq, .colSq{
-    display:grid; place-items:center; width:min(16vmin,160px); aspect-ratio:1/1;
-    border:8px solid var(--blue-mid); border-radius:18px; background:#fff; font-size:clamp(2rem,5vmin,3rem);
-    box-shadow:0 8px 24px rgba(0,0,0,.08);
-  }
-  .miniImg{
-    display:grid; place-items:center; width:min(22vmin,240px); aspect-ratio:1/1;
-    border:8px solid var(--blue-mid); border-radius:18px; background:#fff; box-shadow:0 8px 24px rgba(0,0,0,.08);
-  }
-  .miniImg img{ width:85%; height:85%; object-fit:contain; }
-  .verb{ display:inline-block; padding:.2rem .8rem; border:6px solid var(--blue-mid); border-radius:16px; background:#fff;
-         font-size:clamp(2rem,5vmin,3rem); }
-  .sentText{ margin-top:10px; font-size:clamp(1.6rem,4.6vmin,2.2rem); text-align:center; min-height:2.4rem; }
 </style>
 </head>
 <body>
 
-<!-- Top nav -->
 <div class="top">
   <button class="iconBtn" id="prev">◀</button>
   <span class="flow" id="flowLabel">1. Spill</span>
   <button class="iconBtn" id="next">▶</button>
 </div>
 
-<!-- G1: Match word → image -->
+<!-- GAME 1 -->
 <section class="wrap" id="g1">
-  <h1>Match: Wuert ↔ Bild</h1>
+  <h1>Lauschter a verbënn d'Wierder mat de Biller</h1>
   <div class="g1wrap">
-    <div class="gridWords" id="wordLane"></div>
-    <div class="gridImgs"  id="imgLane"></div>
+    <div class="wordGrid" id="wordGrid"></div>
+    <div class="imgGrid" id="imgGrid"></div>
+  </div>
+  <div class="toggleBox">
+    <label><input type="checkbox" id="soundToggle" checked> Toun un/aus</label>
   </div>
 </section>
 
-<!-- G2: Schreif d’Wuert -->
+<!-- GAME 2 -->
 <section class="wrap hidden" id="g2">
   <h1>Schreif d’Wuert</h1>
-  <div class="bigBox medium"><img id="spellImg" alt=""></div>
-  <div class="slots" id="spellSlots"></div>
-  <div class="letters" id="spellBank"></div>
-  <div><button class="btn" id="spellNext">Weider</button></div>
+  <div class="bigBox"><img id="spellImg" alt=""></div>
+  <div class="choices" id="spellChoices"></div>
 </section>
 
-<!-- G3: Artikel wielen -->
+<!-- GAME 3 -->
 <section class="wrap hidden" id="g3">
   <h1>Wiel den Artikel</h1>
-  <div class="row2">
-    <div class="bigBox" style="width:min(46vmin,70%);"><img id="artImg" alt=""></div>
-    <div>
-      <div class="labelBig" id="artWord">_____ Numm</div>
-      <div class="choices" id="artChoices"></div>
-      <div style="text-align:center; margin-top:12px;"><button class="btn" id="artNext">Weider</button></div>
-    </div>
-  </div>
+  <div class="bigBox"><img id="artImg" alt=""></div>
+  <div class="labelBig" id="artWord">_____ Numm</div>
+  <div class="choices" id="artChoices"></div>
 </section>
 
-<!-- G4: De Pluriel vun de Schoulsaachen -->
+<!-- GAME 4 -->
 <section class="wrap hidden" id="g4">
   <h1>De Pluriel vun de Schoulsaachen</h1>
   <div class="labelBig" id="pluWord">Wuert</div>
   <div class="choices" id="pluChoices"></div>
-  <div><button class="btn" id="pluNext">Weider</button></div>
 </section>
 
-<!-- G5: Number square – image – sinn – colour square + Check -->
+<!-- GAME 5 -->
 <section class="wrap hidden" id="g5">
   <h1>Lies de Saz</h1>
-  <div class="inlineRow" id="sentRow">
-    <div class="numSq" id="sentNum">3</div>
-    <div class="miniImg"><img id="sentImg" alt=""></div>
-    <span class="verb">sinn</span>
-    <div class="colSq" id="sentCol"></div>
-  </div>
-  <div style="display:flex; gap:.6rem; justify-content:center;">
-    <button class="btn" id="sentNew">Nei Kombinatioun</button>
-    <button class="btn" id="sentCheck">Check</button>
-  </div>
-  <div class="sentText" id="sentText"></div>
+  <div class="labelBig" id="sentDisplay"> </div>
+  <button class="btn" id="sentCheck">Check</button>
 </section>
 
 <audio id="speaker" preload="auto"></audio>
 
 <script>
-/* ---------- DATA (aligned with your links) ---------- */
-const AUDIO_BASE = "https://github.com/albrechtclaire1007/p3schoulsaachen/raw/refs/heads/main/";
-const AUDIO_FILES = {
-  "d'Buch": "BUCH.mp3",
-  "de Bläistëft": "Bläistëft.mp3",
-  "de Classeur": "Classeuren.mp3",
-  "de Gummi": "GUMMI.mp3",
-  "d'Heft": "HEFT.mp3",
-  "d'Kräid": "KRÄID.mp3",
-  "d'Léierin": "léierin.mp3",
-  "de Lineal": "LINEAL.mp3",
-  "d'Blat Pabeier": "PABEIER.mp3",
-  "de Pech": "pech.mp3",
-  "d'Schachtel": "SCHACHTEL.mp3",
-  "d'Schéier": "SCHEIER.mp3",
-  "de Schoulsak": "Schoulsak.mp3",
-  "de Spëtzer": "spëtzer.mp3",
-  "d'Tafel": "tafel.mp3",
-  "d'Tuschfaarf": "tuschfaarf.mp3",
-  "d'Bläistëftsfaarf": "blaischteftsfaarf.mp3"
+/* ---------- DATA ---------- */
+const AUDIO_BASE="https://github.com/albrechtclaire1007/p3schoulsaachen/raw/refs/heads/main/";
+const AUDIO_FILES={
+  "d'Buch":"BUCH.mp3","de Bläistëft":"Bläistëft.mp3","de Classeur":"Classeuren.mp3","de Gummi":"GUMMI.mp3","d'Heft":"HEFT.mp3",
+  "d'Kräid":"KRÄID.mp3","d'Léierin":"léierin.mp3","de Lineal":"LINEAL.mp3","d'Blat Pabeier":"PABEIER.mp3",
+  "d'Schachtel":"SCHACHTEL.mp3","d'Schéier":"SCHEIER.mp3","de Schoulsak":"Schoulsak.mp3","de Spëtzer":"spëtzer.mp3",
+  "d'Tafel":"tafel.mp3","d'Tuschfaarf":"tuschfaarf.mp3","d'Bläistëftsfaarf":"blaischteftsfaarf.mp3"
 };
 
-const ITEMS = [
-  {id:'blaisteft',   label:"de Bläistëft",        img:"https://i.postimg.cc/SnZrXnyQ/Bl-ist-ft.png"},
-  {id:'blaisteftsf', label:"d'Bläistëftsfaarf",   img:"https://i.postimg.cc/Bjhg8jqv/Bl-ist-ftsfaarwen.png"},
-  {id:'buch',        label:"d'Buch",               img:"https://i.postimg.cc/HrS2Jrpx/Buch.png"},
-  {id:'classeur',    label:"de Classeur",          img:"https://i.postimg.cc/CRvNZRF5/Classeur.png"},
-  {id:'gummi',       label:"de Gummi",             img:"https://i.postimg.cc/VJ7RSJY5/Gummi.png"},
-  {id:'heft',        label:"d'Heft",               img:"https://i.postimg.cc/SnZrXnyX/Heft.png"},
-  {id:'kraid',       label:"d'Kräid",              img:"https://i.postimg.cc/qNmLtNkC/Kr-id.png"},
-  {id:'leierin',     label:"d'Léierin",            img:"https://i.postimg.cc/YvX34vpW/L-ierin.png"},
-  {id:'lineal',      label:"de Lineal",            img:"https://i.postimg.cc/tsr51sX6/Lineal.png"},
-  {id:'blat',        label:"d'Blat Pabeier",       img:"https://i.postimg.cc/mPdwcPbM/Pabeier.png"},
-  {id:'schachtel',   label:"d'Schachtel",          img:"https://i.postimg.cc/w1WVt16D/Schachtel.png"},
-  {id:'scheier',     label:"d'Schéier",            img:"https://i.postimg.cc/mPdwcPbY/Sch-ier.png"},
-  {id:'schoulsak',   label:"de Schoulsak",         img:"https://i.postimg.cc/bZ6TGZz0/Schoulsak.png"},
-  {id:'schwamp',     label:"de Schwamp",           img:"https://i.postimg.cc/tsr51sXN/Schwamm.png"},
-  {id:'spetzer',     label:"de Spëtzer",           img:"https://i.postimg.cc/pm0Z9m2B/Sp-tzer.png"},
-  {id:'tafel',       label:"d'Tafel",              img:"https://i.postimg.cc/rDhJdD8J/Tafel.png"},
-  {id:'tuschfaarf',  label:"d'Tuschfaarf",         img:"https://i.postimg.cc/bD9MmGtQ/15.png"},
-  {id:'pech',        label:"de Pech",              img:"https://i.postimg.cc/vcMKpmmT/7.png"}
+const ITEMS=[
+  {id:'blaisteft',label:"de Bläistëft",img:"https://i.postimg.cc/SnZrXnyQ/Bl-ist-ft.png"},
+  {id:'blaisteftsf',label:"d'Bläistëftsfaarf",img:"https://i.postimg.cc/Bjhg8jqv/Bl-ist-ftsfaarwen.png"},
+  {id:'buch',label:"d'Buch",img:"https://i.postimg.cc/HrS2Jrpx/Buch.png"},
+  {id:'classeur',label:"de Classeur",img:"https://i.postimg.cc/CRvNZRF5/Classeur.png"},
+  {id:'gummi',label:"de Gummi",img:"https://i.postimg.cc/VJ7RSJY5/Gummi.png"},
+  {id:'heft',label:"d'Heft",img:"https://i.postimg.cc/SnZrXnyX/Heft.png"},
+  {id:'kraid',label:"d'Kräid",img:"https://i.postimg.cc/qNmLtNkC/Kr-id.png"},
+  {id:'leierin',label:"d'Léierin",img:"https://i.postimg.cc/YvX34vpW/L-ierin.png"},
+  {id:'lineal',label:"de Lineal",img:"https://i.postimg.cc/tsr51sX6/Lineal.png"},
+  {id:'blat',label:"d'Blat Pabeier",img:"https://i.postimg.cc/mPdwcPbM/Pabeier.png"},
+  {id:'schachtel',label:"d'Schachtel",img:"https://i.postimg.cc/w1WVt16D/Schachtel.png"},
+  {id:'scheier',label:"d'Schéier",img:"https://i.postimg.cc/mPdwcPbY/Sch-ier.png"},
+  {id:'schoulsak',label:"de Schoulsak",img:"https://i.postimg.cc/bZ6TGZz0/Schoulsak.png"},
+  {id:'spetzer',label:"de Spëtzer",img:"https://i.postimg.cc/pm0Z9m2B/Sp-tzer.png"},
+  {id:'tafel',label:"d'Tafel",img:"https://i.postimg.cc/rDhJdD8J/Tafel.png"},
+  {id:'tuschfaarf',label:"d'Tuschfaarf",img:"https://i.postimg.cc/bD9MmGtQ/15.png"}
 ];
 
-/* Plurals (fill more when ready) */
-const LEXICON = {
-  classeur:   { article:"de",  noun:"Classeur",         plural:"Classeuren" },
-  schoulsak:  { article:"de",  noun:"Schoulsak",        plural:"Schoulsäck" },
-  scheier:    { article:"eng", noun:"Schéier",          plural:"Schéieren" },
-  tafel:      { article:"eng", noun:"Tafel",            plural:"Tafelen" },
-  leierin:    { article:"eng", noun:"Léierin",          plural:"Léierinnen" },
-  schachtel:  { article:"eng", noun:"Schachtel",        plural:"Schachtelen" },
-  tuschfaarf: { article:"eng", noun:"Tuschfaarf",       plural:"Tuschfaarwen" },
-  blaisteftsf:{ article:"eng", noun:"Bläistëftsfaarf",  plural:"Bläistëftsfaarwen" },
-  blaisteft:  { article:"de",  noun:"Bläistëft",        plural:"Bläistëfter" },
-  lineal:     { article:"de",  noun:"Lineal",           plural:"Linealen" },
-  buch:       { article:"d'",  noun:"Buch",             plural:"Bicher" }
+/* PLURALS */
+const LEXICON={
+  classeur:{article:"de",noun:"Classeur",plural:"Classeuren"},
+  schoulsak:{article:"de",noun:"Schoulsak",plural:"Schoulsäck"},
+  scheier:{article:"d'",noun:"Schéier",plural:"Schéieren"},
+  tafel:{article:"d'",noun:"Tafel",plural:"Tafelen"},
+  leierin:{article:"d'",noun:"Léierin",plural:"Léierinnen"},
+  schachtel:{article:"d'",noun:"Schachtel",plural:"Schachtelen"},
+  tuschfaarf:{article:"d'",noun:"Tuschfaarf",plural:"Tuschfaarwen"},
+  blaisteftsf:{article:"d'",noun:"Bläistëftsfaarf",plural:"Bläistëftsfaarwen"},
+  blaisteft:{article:"de",noun:"Bläistëft",plural:"Bläistëfter"},
+  lineal:{article:"de",noun:"Lineal",plural:"Linealen"},
+  buch:{article:"d'",noun:"Buch",plural:"Bicher"}
 };
-const COLOURS = [
-  {name:"blo",  hex:"#4C78A8"},
-  {name:"rout", hex:"#E45756"},
-  {name:"gréng",hex:"#72B7B2"},
-  {name:"giel", hex:"#F1A33C"},
-  {name:"rosa", hex:"#E46BA0"},
-  {name:"orange",hex:"#F58518"},
-  {name:"mof",  hex:"#7E6ACE"},
-  {name:"schwaarz", hex:"#2D2D2D"}
-];
-const NUMBERS = [2,3,4,5,6,7,8,9,10];
 
-/* ---------- UTIL ---------- */
-const speaker = document.getElementById('speaker');
-async function playSound(src){ try{ if(speaker.src!==src) speaker.src=src; await speaker.play(); }catch(e){} }
-function playLabel(label){ const f=AUDIO_FILES[label]; if(f){ playSound(AUDIO_BASE+encodeURIComponent(f)); } }
-function stripArticle(label){ return label.replace(/^(d')/i,"").replace(/^(de|den)\s+/i,"").trim(); }
-function getLex(id){
-  const base = ITEMS.find(x=>x.id===id); const lex=LEXICON[id]||{};
-  return { id, label:base.label, img:base.img, article:lex.article || (base.label.startsWith("d'")?"d'":(base.label.startsWith("den ")?"den":"de")), noun: lex.noun || stripArticle(base.label), plural: lex.plural || null };
-}
-function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
-function flash(el, ok){ el.classList.remove('flash-good','flash-bad'); void el.offsetWidth; el.classList.add(ok?'flash-good':'flash-bad'); setTimeout(()=>el.classList.remove('flash-good','flash-bad'), 260); }
+/* ---------- HELPERS ---------- */
+const speaker=document.getElementById('speaker');
+async function playSound(src){try{if(speaker.src!==src)speaker.src=src;await speaker.play();}catch(e){}}
+function playLabel(label){const f=AUDIO_FILES[label];if(f){playSound(AUDIO_BASE+encodeURIComponent(f));}}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function flash(el,ok){el.classList.remove('flash-good','flash-bad');void el.offsetWidth;el.classList.add(ok?'flash-good':'flash-bad');
+setTimeout(()=>el.classList.remove('flash-good','flash-bad'),300);}
 
 /* ---------- NAV ---------- */
-const pages=["g1","g2","g3","g4","g5"]; let pageIdx=0;
-const flowLabel=document.getElementById('flowLabel'), prevBtn=document.getElementById('prev'), nextBtn=document.getElementById('next');
-function labelFor(i){ return `${i+1}. Spill`; }
-function updateNav(){ flowLabel.textContent=labelFor(pageIdx); prevBtn.classList.toggle('hidden',pageIdx===0); nextBtn.classList.toggle('hidden',pageIdx===pages.length-1); }
-function showPage(i){ pageIdx=Math.max(0,Math.min(pages.length-1,i)); pages.forEach((id,idx)=>document.getElementById(id).classList.toggle('hidden',idx!==pageIdx)); updateNav(); }
-prevBtn.onclick=()=>showPage(pageIdx-1); nextBtn.onclick=()=>showPage(pageIdx+1);
+const pages=["g1","g2","g3","g4","g5"];let pageIdx=0;
+const flowLabel=document.getElementById('flowLabel'),prevBtn=document.getElementById('prev'),nextBtn=document.getElementById('next');
+function updateNav(){flowLabel.textContent=`${pageIdx+1}. Spill`;prevBtn.classList.toggle('hidden',pageIdx===0);
+nextBtn.classList.toggle('hidden',pageIdx===pages.length-1);}
+function showPage(i){pageIdx=Math.max(0,Math.min(pages.length-1,i));
+pages.forEach((id,idx)=>document.getElementById(id).classList.toggle('hidden',idx!==pageIdx));updateNav();}
+prevBtn.onclick=()=>showPage(pageIdx-1);nextBtn.onclick=()=>showPage(pageIdx+1);
 
-/* ---------- G1: Match word → image ---------- */
-const wordLane=document.getElementById('wordLane');
-const imgLane =document.getElementById('imgLane');
-
-let g1Pairs=[]; let selectedWord=null;
+/* ---------- GAME 1 ---------- */
+const wordGrid=document.getElementById('wordGrid'),imgGrid=document.getElementById('imgGrid');
+const soundToggle=document.getElementById('soundToggle');
+let selectedWord=null;
 function buildG1(){
-  wordLane.innerHTML=""; imgLane.innerHTML=""; selectedWord=null;
-  const pool = shuffle([...ITEMS]);         // same source on both sides
-  g1Pairs = pool.map(it=>({id:it.id}));
-  // words column
-  shuffle([...pool]).forEach(it=>{
+  wordGrid.innerHTML="";imgGrid.innerHTML="";selectedWord=null;
+  const shuffled=shuffle([...ITEMS]);
+  // words top 3 rows
+  shuffled.forEach(it=>{
     const card=document.createElement('div');
-    card.className='wordCard'; card.draggable=true; card.dataset.id=it.id; card.textContent=it.label;
-    // play on click + support click-to-select
-    card.addEventListener('click',()=>{
-      playLabel(it.label);
-      if(selectedWord===card){ card.classList.remove('selected'); selectedWord=null; return; }
-      if(selectedWord) selectedWord.classList.remove('selected');
-      selectedWord=card; card.classList.add('selected');
-    });
-    card.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/plain', it.id); });
-    wordLane.appendChild(card);
+    card.className='wordCard';card.textContent=it.label;
+    card.onclick=()=>{
+      if(soundToggle.checked)playLabel(it.label);
+      if(selectedWord===card){card.classList.remove('selected');selectedWord=null;return;}
+      if(selectedWord)selectedWord.classList.remove('selected');
+      selectedWord=card;card.classList.add('selected');
+    };
+    wordGrid.appendChild(card);
   });
-  // images grid (drop targets + click targets)
-  shuffle([...pool]).forEach(it=>{
+  // images below
+  shuffle([...ITEMS]).forEach(it=>{
     const tile=document.createElement('div');
-    tile.className='imgToken'; tile.dataset.id=it.id;
+    tile.className='imgToken';tile.dataset.id=it.id;
     tile.innerHTML=`<img src="${it.img}" alt="${it.label}">`;
-    // drag over/drop
-    tile.addEventListener('dragover',e=>e.preventDefault());
-    tile.addEventListener('drop',e=>{
-      e.preventDefault();
-      const wid=e.dataTransfer.getData('text/plain');
-      checkG1(wid, tile);
-    });
-    // click-to-match if a word is selected
-    tile.addEventListener('click',()=>{
-      if(!selectedWord) return;
-      checkG1(selectedWord.dataset.id, tile, selectedWord);
-    });
-    imgLane.appendChild(tile);
+    tile.onclick=()=>{
+      if(!selectedWord)return;
+      const ok=selectedWord.textContent===it.label;
+      flash(tile,ok);
+      if(ok){
+        selectedWord.style.opacity='.4';selectedWord.style.pointerEvents='none';
+        tile.style.opacity='.8';tile.style.pointerEvents='none';
+        selectedWord.classList.remove('selected');selectedWord=null;
+        if([...wordGrid.children].every(w=>w.style.pointerEvents==='none'))
+          setTimeout(()=>showPage(pageIdx+1),700);
+      }else{selectedWord.classList.remove('selected');selectedWord=null;}
+    };
+    imgGrid.appendChild(tile);
   });
 }
-function checkG1(wordId, tile, wordEl=null){
-  const ok = (wordId === tile.dataset.id);
-  flash(tile, ok);
-  if(ok){
-    // lock the pair
-    tile.style.pointerEvents='none';
-    tile.style.opacity='.9';
-    const w = wordEl || [...wordLane.children].find(x=>x.dataset.id===wordId);
-    if(w){ w.style.pointerEvents='none'; w.style.opacity='.5'; w.classList.remove('selected'); if(selectedWord===w) selectedWord=null; }
-    // done?
-    const remaining = [...wordLane.children].some(x=>x.style.pointerEvents!=='none');
-    if(!remaining){ setTimeout(()=>showPage(pageIdx+1), 600); }
-  }else{
-    if(wordEl){ wordEl.classList.remove('selected'); selectedWord=null; }
-  }
-}
 
-/* ---------- G2: Spell the word ---------- */
-const spellImg=document.getElementById('spellImg'), spellSlots=document.getElementById('spellSlots'), spellBank=document.getElementById('spellBank'), spellNext=document.getElementById('spellNext');
-let bag2=shuffle([...ITEMS]); let cur2=null;
-function setupSpellRound(){
-  if(bag2.length===0){ showPage(pageIdx+1); return; }
-  cur2=bag2.pop();
-  const lex=getLex(cur2.id);
-  const noun=lex.noun.replace(/\s+/g,'');
-  spellImg.src=cur2.img; spellImg.alt=lex.label; spellImg.classList.remove('fade'); void spellImg.offsetWidth; spellImg.classList.add('fade');
-
-  spellSlots.innerHTML=""; spellBank.innerHTML="";
-  const letters=[...noun]; const shuffled=shuffle(letters.slice());
-  const slotEls=letters.map((_ch,i)=>{
-    const s=document.createElement('div'); s.className='slot'; s.dataset.idx=i; s.dataset.ch='';
-    s.addEventListener('dragover',e=>e.preventDefault());
-    s.addEventListener('drop',e=>{ e.preventDefault(); const ch=e.dataTransfer.getData('text/plain'); if(!s.textContent){ s.textContent=ch; s.dataset.ch=ch; check(); }});
-    s.addEventListener('click',()=>{ if(!s.textContent)return; const ch=s.textContent; s.textContent=''; s.dataset.ch=''; addLetter(ch); });
-    spellSlots.appendChild(s); return s;
-  });
-  function addLetter(ch){
-    const l=document.createElement('div'); l.className='letter'; l.textContent=ch; l.draggable=true;
-    l.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain', ch));
-    l.addEventListener('click',()=>{ const empty=slotEls.find(s=>!s.textContent); if(empty){ empty.textContent=ch; empty.dataset.ch=ch; l.remove(); check(); }});
-    spellBank.appendChild(l);
-  }
-  shuffled.forEach(addLetter);
-  function check(){ const got=slotEls.map(s=>s.dataset.ch).join(''); if(got.length!==letters.length) return; flash(spellImg.parentElement, got===letters.join('')); if(got===letters.join('')) setTimeout(setupSpellRound, 450); }
-}
-spellNext.onclick=setupSpellRound;
-
-/* ---------- G3: Articles ---------- */
-const artImg=document.getElementById('artImg'), artWord=document.getElementById('artWord'), artChoices=document.getElementById('artChoices'), artNext=document.getElementById('artNext');
-let bag3=shuffle([...ITEMS]); let cur3=null;
-function setupArtRound(){
-  if(bag3.length===0){ showPage(pageIdx+1); return; }
-  cur3=bag3.pop(); const lex=getLex(cur3.id);
-  artImg.src=cur3.img; artImg.alt=lex.label; artImg.classList.remove('fade'); void artImg.offsetWidth; artImg.classList.add('fade');
-  artWord.textContent=`_____ ${lex.noun}`; artChoices.innerHTML="";
-  ["de","den","d'"].sort(()=>Math.random()-.5).forEach(o=>{
-    const b=document.createElement('button'); b.className='choice'; b.textContent=o;
-    b.onclick=()=>{ const ok=(o===lex.article); flash(artImg.parentElement, ok); if(ok) setTimeout(setupArtRound, 450); };
-    artChoices.appendChild(b);
-  });
-}
-artNext.onclick=setupArtRound;
-
-/* ---------- G4: Plural (no double consonant tricks) ---------- */
-const pluWord=document.getElementById('pluWord'), pluChoices=document.getElementById('pluChoices'), pluNext=document.getElementById('pluNext');
-let pool4=ITEMS.map(i=>getLex(i.id)).filter(x=>x.plural);
-function pluralDistractors(baseSing, correct){
-  const stems=[ baseSing.replace(/e/g,'ë').replace(/a/g,'ä'), baseSing.replace(/ë/g,'e').replace(/ä/g,'a'), baseSing ];
-  const suffixes=['en','er','s']; const cand=new Set();
-  stems.forEach(st=>suffixes.forEach(s=>cand.add(st+s)));
-  cand.delete(correct);
-  return shuffle([...cand]).slice(0,3);
-}
-function setupPluralRound(){
-  if(!pool4.length){ pluWord.textContent="Fëllt d’Plurale fir méi Froen."; pluChoices.innerHTML=""; return; }
-  const cur=pool4[Math.floor(Math.random()*pool4.length)];
-  pluWord.textContent=cur.label;
-  const wrong=pluralDistractors(cur.noun, cur.plural);
-  const opts=shuffle([cur.plural, ...wrong]); pluChoices.innerHTML="";
-  opts.forEach(o=>{
-    const b=document.createElement('button'); b.className='choice'; b.textContent=o;
-    b.onclick=()=>{ const ok=(o===cur.plural); flash(pluWord, ok); if(ok) setTimeout(setupPluralRound, 450); };
-    pluChoices.appendChild(b);
-  });
-}
-pluNext.onclick=setupPluralRound;
-
-/* ---------- G5: Build + Check ---------- */
-const sentNum=document.getElementById('sentNum'), sentImg=document.getElementById('sentImg'), sentCol=document.getElementById('sentCol');
-const sentNew=document.getElementById('sentNew'), sentCheck=document.getElementById('sentCheck'), sentText=document.getElementById('sentText');
-function numWord(n){ const m={2:"Zwee",3:"Dräi",4:"Véier",5:"Fënnef",6:"Sechs",7:"Siwen",8:"Aacht",9:"Néng",10:"Zéng"}; return m[n]||String(n); }
-let curSent=null; // {n,item,color}
-function buildSentence(){
-  const pool = pool4.length? pool4 : ITEMS.map(i=>getLex(i.id)).filter(x=>x.plural); // prefer items with plural
-  const item = pool[Math.floor(Math.random()*pool.length)];
-  const n = NUMBERS[Math.floor(Math.random()*NUMBERS.length)];
-  const col = COLOURS[Math.floor(Math.random()*COLOURS.length)];
-  sentNum.textContent=n; sentImg.src=ITEMS.find(x=>x.id===item.id).img; sentImg.alt=item.label; sentCol.style.background=col.hex;
-  sentText.textContent=""; curSent={n,item,col};
-}
-sentNew.onclick=buildSentence;
-sentCheck.onclick=()=>{ if(!curSent) return; const s=`${numWord(curSent.n)} ${curSent.item.plural} sinn ${curSent.col.name}.`; sentText.textContent=s; };
+/* ---------- GAME 2–5 simple placeholders (reuse same data for flow) ---------- */
+function setupG2(){document.getElementById('spellImg').src=ITEMS[0].img;}
+function setupG3(){document.getElementById('artImg').src=ITEMS[1].img;}
+function setupG4(){document.getElementById('pluWord').textContent=ITEMS[2].label;}
+function setupG5(){document.getElementById('sentDisplay').textContent="3 Classeur sinn blo.";}
+document.getElementById('sentCheck').onclick=()=>{document.getElementById('sentDisplay').textContent="Dräi Classeuren sinn blo.";};
 
 /* ---------- INIT ---------- */
 function init(){
-  buildG1();
-  setupSpellRound();
-  setupArtRound();
-  setupPluralRound();
-  buildSentence();
-  showPage(0);
+  buildG1();setupG2();setupG3();setupG4();setupG5();showPage(0);
 }
 init();
 </script>
 </body>
 </html>
-
