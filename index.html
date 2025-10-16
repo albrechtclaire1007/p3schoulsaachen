@@ -18,7 +18,7 @@
     --border:3px;
     /* genre colours */
     --masc:#4C78A8;    /* de/den */
-    --fem:#E46BA0;     /* d' (feminine in our vocab set) */
+    --fem:#E46BA0;     /* d' (for our set) */
   }
 
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; outline:none;}
@@ -87,7 +87,7 @@
     background:#fff; border:6px solid var(--blue-mid); border-radius:18px;
     aspect-ratio:1/1; display:grid; place-items:center; cursor:pointer;
     transition:transform .08s ease; box-shadow:0 6px 18px rgba(0,0,0,.08); padding:4px;
-    width:min(16vmin,140px);  /* smaller footprint to ensure 2 rows fit neatly */
+    width:min(16vmin,140px);
     height:min(16vmin,140px);
   }
   .imgToken img{ width:70%; height:70%; object-fit:contain; }
@@ -117,7 +117,7 @@
     cursor:pointer; font-size:clamp(1.8rem,5.6vmin,3rem); min-width:3.1rem; text-align:center;
   }
 
-  /* ---------- GAME 3 (image left, options right) ---------- */
+  /* ---------- GAME 3 ---------- */
   .row2{ display:flex; gap:min(4vmin,28px); align-items:center; justify-content:center; flex-wrap:wrap; width:96vw; max-width:1200px; }
   .labelBig{ font-size:clamp(2rem,5.6vmin,3.2rem); text-align:center; margin:.4rem 0 1rem; }
   .choices{ display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; }
@@ -127,18 +127,23 @@
   }
   .score{ font-size:clamp(1rem,2.4vmin,1.2rem); opacity:.85; text-align:center; }
 
-  /* ---------- GAME 4 (plural with gender frame + “zwee/zwou” + stacked plurals) ---------- */
+  /* ---------- GAME 4 (plural with gender frame + zwee/zwou + stacked plurals, left aligned) ---------- */
   .genreFrame{
     border:10px solid var(--masc); border-radius:28px; width:min(56vmin,84%); aspect-ratio:10/4;
     display:grid; place-items:center; background:#fff; box-shadow:0 8px 24px rgba(0,0,0,.08);
     padding:1vmin; text-align:center; font-size:clamp(1.8rem,5.4vmin,3rem);
   }
-  .twoline{ display:flex; flex-direction:column; gap:10px; align-items:center; }
-  .twoRow{ display:flex; gap:.8rem; justify-content:center; }
-  .stackRight{ display:flex; flex-direction:column; gap:.6rem; align-items:flex-end; }
-  .rowFlex{ display:flex; flex-direction:column; gap:12px; align-items:center; }
-
-  .note{font-size:.95rem; opacity:.75; text-align:center; margin-top:6px;}
+  .pluPanel{
+    width:min(92vw, 900px);
+    display:grid; grid-template-columns:1fr 1fr; gap:min(4vmin,28px);
+    align-items:start; justify-items:center;
+    padding:1vmin 0;
+  }
+  .twoRow{ display:flex; gap:.8rem; justify-content:center; align-items:center; width:100%; }
+  .stackLeft{ display:flex; flex-direction:column; gap:.8rem; align-items:flex-start; width:100%; }
+  .choice.small{ font-size:clamp(1.4rem,4.2vmin,2rem); padding:.3rem .6rem; }
+  .choice.toggle.selected{ outline:4px solid var(--blue-dark); }
+  .btn[disabled]{ opacity:.5; pointer-events:none; }
 
   /* ---------- GAME 5 ---------- */
   .inlineRow{ display:flex; align-items:center; justify-content:center; gap:min(2.4vmin,18px); flex-wrap:wrap; }
@@ -212,19 +217,20 @@
 <!-- GAME 4 -->
 <section class="wrap hidden" id="g4">
   <h1>De Pluriel vun de Schoulsaachen</h1>
-  <div class="rowFlex">
-    <div class="genreFrame" id="pluSingFrame">_____</div>
-    <div class="twoline">
-      <div class="twoRow">
-        <button class="choice" id="btnZwee">zwee</button>
-        <button class="choice" id="btnZwou">zwou</button>
-      </div>
-      <div class="stackRight" id="pluChoices"></div>
+  <div class="genreFrame" id="pluSingFrame">_____</div>
+
+  <!-- 2-column panel: left = zwee/zwou, right = plural options (stacked, left-aligned) -->
+  <div class="pluPanel">
+    <div class="twoRow">
+      <button class="choice small toggle" id="btnZwee">zwee</button>
+      <button class="choice small toggle" id="btnZwou">zwou</button>
     </div>
-    <div class="score" id="pluScore">Punkten: 0</div>
-    <div><button class="btn" id="pluNext">Weider</button></div>
-    <div class="note">(Wiel d’richteg Zuel + Pluriel. Du kriss e Punkt wann béid richteg sinn.)</div>
+    <div class="stackLeft" id="pluChoices"></div>
   </div>
+
+  <div class="score" id="pluScore">Punkten: 0</div>
+  <div><button class="btn" id="pluNext" disabled>Weider</button></div>
+  <div class="note">(Wiel d’richteg Zuel + Pluriel. Du kriss e Punkt wann béid richteg sinn.)</div>
 </section>
 
 <!-- GAME 5 -->
@@ -276,7 +282,6 @@ const ITEMS = [
 ];
 
 /* Articles & Plurals (skip items without plural in plural-based games) */
-/* Per your correction, these are d': Schéier, Léierin, Tafel, Tuschfaarf, Bläistëftsfaarf, Schachtel */
 const LEXICON = {
   classeur:    { article:"de",  noun:"Classeur",         plural:"Classeuren" },
   schoulsak:   { article:"de",  noun:"Schoulsak",        plural:"Schoulsäck" },
@@ -288,8 +293,8 @@ const LEXICON = {
   blaisteftsf: { article:"d'",  noun:"Bläistëftsfaarf",  plural:"Bläistëftsfaarwen" },
   blaisteft:   { article:"de",  noun:"Bläistëft",        plural:"Bläistëfter" },
   lineal:      { article:"de",  noun:"Lineal",           plural:"Linealen" },
-  buch:        { article:"d'",  noun:"Buch",             plural:"Bicher" },
-  // left out: gummi, kraid, blat, spetzer (until confirmed), to avoid inconsistencies
+  buch:        { article:"d'",  noun:"Buch",             plural:"Bicher" }
+  // left out: gummi, kraid, blat, spetzer (until confirmed)
 };
 
 /* Colours & numbers for Game 5 */
@@ -390,14 +395,13 @@ function buildGame1(){
     imgGrid.appendChild(tile);
   });
 
-  // Recompute on resize (mobile orientation etc.)
-  window.addEventListener('resize', resizeWordWidth);
-  function resizeWordWidth(){
+  // Adjust on resize
+  window.addEventListener('resize', () => {
     [...wordGrid.children].forEach(c=>{ c.style.minWidth=''; });
     let maxW = 0;
     [...wordGrid.children].forEach(c=>{ maxW = Math.max(maxW, c.offsetWidth); });
     [...wordGrid.children].forEach(c=>{ c.style.minWidth = maxW + 'px'; });
-  }
+  });
 }
 
 function checkG1(wordId, tile, wordEl=null){
@@ -454,12 +458,11 @@ spellNext.onclick = setupSpellRound;
 /* ---------- GAME 3: Article picker with scoring + retry pass ---------- */
 const artImg = $('#artImg'), artWord = $('#artWord'), artChoices = $('#artChoices'), artNext = $('#artNext'), artScoreEl = $('#artScore');
 let g3Main = shuffle([...ITEMS]);  // first pass (each exactly once)
-let g3Retry = [];                  // items answered wrong on first pass
+let g3Retry = [];                  // wrong from first pass
 let g3Mode = 'main';               // 'main' or 'retry'
 let g3Score = 0;
 
 function setupArtRound(){
-  // Refill / switch mode when needed
   if(g3Mode==='main' && g3Main.length===0){
     if(g3Retry.length){ g3Mode='retry'; g3Main = shuffle(g3Retry); g3Retry = []; }
     else { showPage(pageIdx+1); return; }
@@ -478,7 +481,7 @@ function setupArtRound(){
       const ok = (o===lex.article);
       flash(artImg.parentElement, ok);
       if(ok){ g3Score++; updateArtScore(); }
-      else if(g3Mode==='main'){ g3Retry.push(cur); } // only queue for retry when in main pass
+      else if(g3Mode==='main'){ g3Retry.push(cur); }
       setTimeout(setupArtRound, 450);
     };
     artChoices.appendChild(b);
@@ -488,7 +491,13 @@ function updateArtScore(){ artScoreEl.textContent = `Punkten: ${g3Score}`; }
 artNext.onclick = setupArtRound;
 
 /* ---------- GAME 4: Plural with gender frame + zwee/zwou + scoring + retry ---------- */
-const pluSingFrame = $('#pluSingFrame'), btnZwee = $('#btnZwee'), btnZwou = $('#btnZwou'), pluChoices = $('#pluChoices'), pluNext = $('#pluNext'), pluScoreEl = $('#pluScore');
+const pluSingFrame = $('#pluSingFrame'),
+      btnZwee = $('#btnZwee'),
+      btnZwou = $('#btnZwou'),
+      pluChoices = $('#pluChoices'),
+      pluNext = $('#pluNext'),
+      pluScoreEl = $('#pluScore');
+
 let g4Pool = ITEMS.map(i=>getLexById(i.id)).filter(x=>x.plural); // only items with confirmed plural
 let g4Main = shuffle(g4Pool.slice()); // first pass
 let g4Retry = [];
@@ -502,13 +511,22 @@ let g4PickPlural = null;  // candidate string
 function colorizeFrame(article){
   const col = genreColor(article);
   pluSingFrame.style.borderColor = col;
+  pluSingFrame.style.boxShadow = `0 8px 24px rgba(0,0,0,.08), 0 0 0 6px ${col}33`;
 }
 
 function resetG4Selections(){
   g4PickTwo = null; g4PickPlural = null;
-  btnZwee.classList.remove('flash-good','flash-bad');
-  btnZwou.classList.remove('flash-good','flash-bad');
-  [...pluChoices.children].forEach(c=> c.classList.remove('flash-good','flash-bad'));
+  [btnZwee, btnZwou].forEach(b=> b.classList.remove('selected','flash-good','flash-bad'));
+  [...pluChoices.children].forEach(c=> c.classList.remove('selected','flash-good','flash-bad'));
+  setPluNextReady(false);
+}
+
+function setPluNextReady(on){
+  pluNext.disabled = !on;
+}
+
+function maybeEnableNext(){
+  setPluNextReady(Boolean(g4PickTwo && g4PickPlural));
 }
 
 function pluralDistractors(baseSing, correct){
@@ -525,7 +543,6 @@ function pluralDistractors(baseSing, correct){
 }
 
 function setupPluralRound(){
-  // switch phases as needed
   if(g4Mode==='main' && g4Main.length===0){
     if(g4Retry.length){ g4Mode='retry'; g4Main = shuffle(g4Retry); g4Retry = []; }
     else { showPage(pageIdx+1); return; }
@@ -534,36 +551,55 @@ function setupPluralRound(){
   }
 
   resetG4Selections();
+
   g4Current = g4Main.pop();
-  // Frame text and color by genre
   pluSingFrame.textContent = g4Current.label; // full with article
   colorizeFrame(g4Current.article);
 
-  // two form buttons
-  btnZwee.onclick = ()=>{ g4PickTwo='zwee'; };
-  btnZwou.onclick = ()=>{ g4PickTwo='zwou'; };
+  btnZwee.onclick = ()=>{
+    g4PickTwo = 'zwee';
+    btnZwee.classList.add('selected');
+    btnZwou.classList.remove('selected');
+    maybeEnableNext();
+  };
+  btnZwou.onclick = ()=>{
+    g4PickTwo = 'zwou';
+    btnZwou.classList.add('selected');
+    btnZwee.classList.remove('selected');
+    maybeEnableNext();
+  };
 
-  // plural choices stacked right
   pluChoices.innerHTML = "";
   const wrong = pluralDistractors(g4Current.noun, g4Current.plural);
   const opts = shuffle([g4Current.plural, ...wrong]);
   opts.forEach(o=>{
-    const b = document.createElement('button'); b.className='choice'; b.textContent=o;
-    b.style.minWidth='10ch';
-    b.onclick=()=>{ g4PickPlural = o; };
+    const b = document.createElement('button'); b.className='choice small'; b.textContent=o;
+    b.style.minWidth='12ch';
+    b.onclick=()=>{
+      [...pluChoices.children].forEach(x=> x.classList.remove('selected'));
+      b.classList.add('selected');
+      g4PickPlural = o;
+      maybeEnableNext();
+    };
     pluChoices.appendChild(b);
   });
 }
 
 function evaluateG4(){
-  if(!g4Current) return;
+  if(!g4Current){ return; }
+  if(!(g4PickTwo && g4PickPlural)){
+    flash(pluSingFrame, false);
+    return;
+  }
   const needTwo = isMasc(g4Current.article) ? 'zwee' : 'zwou';
   const ok = (g4PickTwo === needTwo) && (g4PickPlural === g4Current.plural);
-  // visual flash on the frame
+
   flash(pluSingFrame, ok);
   if(ok){ g4Score++; updatePluScore(); }
   else if(g4Mode==='main'){ g4Retry.push(g4Current); }
-  g4Current = null; setTimeout(setupPluralRound, 500);
+
+  g4Current = null;
+  setTimeout(setupPluralRound, 500);
 }
 function updatePluScore(){ pluScoreEl.textContent = `Punkten: ${g4Score}`; }
 pluNext.onclick = evaluateG4;
@@ -591,11 +627,14 @@ sentCheck.onclick = ()=>{ if(!curSentence) return; sentText.textContent = `${num
 function init(){
   buildGame1();
   setupSpellRound();
-  // Game 3 starts a fresh pass with scoring
+
+  // Game 3 fresh start
   g3Main = shuffle([...ITEMS]); g3Retry=[]; g3Mode='main'; g3Score=0; updateArtScore(); setupArtRound();
-  // Game 4 scoring & data
+
+  // Game 4 fresh start
   g4Pool = ITEMS.map(i=>getLexById(i.id)).filter(x=>x.plural);
   g4Main = shuffle(g4Pool.slice()); g4Retry=[]; g4Mode='main'; g4Score=0; updatePluScore(); setupPluralRound();
+
   buildSentence();
   showPage(0);
 }
@@ -603,3 +642,4 @@ init();
 </script>
 </body>
 </html>
+
