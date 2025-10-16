@@ -16,6 +16,9 @@
     --blue-mid:#8ab6d9; --blue-light:#cde4f5; --blue-dark:#4f7ca0;
     --ink:#173c57; --white:#fff; --ok:#b7f0c8; --bad:#ffcccc;
     --border:3px;
+    /* genre colours */
+    --masc:#4C78A8;    /* de/den */
+    --fem:#E46BA0;     /* d' (feminine in our vocab set) */
   }
 
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; outline:none;}
@@ -52,41 +55,42 @@
   .flash-good{ background:var(--ok)!important; border-color:var(--ok)!important; }
   .flash-bad{ background:var(--bad)!important; border-color:var(--bad)!important; }
 
-  /* ---------- GAME 1 (3 rows words, 4 rows images) ---------- */
+  /* ---------- GAME 1 (3 rows words, 2 rows images) ---------- */
   .g1wrap{width:96vw; max-width:1400px; display:flex; flex-direction:column; gap:1.6vmin;}
-  /* Words grid: 3 rows, auto columns (fill by column) */
+  /* Words grid: 3 rows, auto columns */
   .wordGrid{
     display:grid;
     grid-auto-flow:column;
-    grid-template-rows:repeat(3, minmax(42px, auto));
+    grid-template-rows:repeat(3, minmax(40px, auto));
     gap:1vmin;
     justify-content:center;
     align-content:center;
   }
   .wordCard{
     background:#fff; border:5px solid var(--blue-mid); border-radius:18px;
-    padding:.55rem .9rem; text-align:center; font-size:clamp(1rem,2.8vmin,1.4rem);
+    padding:.5rem .9rem; text-align:center; font-size:clamp(1rem,2.6vmin,1.4rem);
     cursor:grab; box-shadow:0 6px 20px rgba(0,0,0,.08); display:flex; align-items:center; justify-content:center;
-    min-height:42px; white-space:nowrap;
+    min-height:40px; white-space:nowrap;
   }
   .wordCard.selected{ outline:5px solid var(--blue-dark); }
-  .wordRowNote{opacity:.75; font-size:.95rem; text-align:center;}
 
-  /* Images grid: 4 rows, auto columns (fill by column) */
+  /* Images grid: 2 rows, smaller tiles */
   .imgGrid{
     display:grid;
     grid-auto-flow:column;
-    grid-template-rows:repeat(4, minmax(90px, 1fr));
-    gap:1.2vmin;
+    grid-template-rows:repeat(2, minmax(80px, 1fr));
+    gap:1.1vmin;
     justify-content:center;
     align-content:center;
   }
   .imgToken{
-    background:#fff; border:6px solid var(--blue-mid); border-radius:22px;
+    background:#fff; border:6px solid var(--blue-mid); border-radius:18px;
     aspect-ratio:1/1; display:grid; place-items:center; cursor:pointer;
-    transition:transform .1s ease; box-shadow:0 8px 22px rgba(0,0,0,.08); padding:6px;
+    transition:transform .08s ease; box-shadow:0 6px 18px rgba(0,0,0,.08); padding:4px;
+    width:min(16vmin,140px);  /* smaller footprint to ensure 2 rows fit neatly */
+    height:min(16vmin,140px);
   }
-  .imgToken img{ width:80%; height:80%; object-fit:contain; }
+  .imgToken img{ width:70%; height:70%; object-fit:contain; }
   .imgToken:active{ transform:scale(.97); }
 
   .g1-controls{display:flex; gap:.6rem; align-items:center; justify-content:center; flex-wrap:wrap;}
@@ -113,15 +117,28 @@
     cursor:pointer; font-size:clamp(1.8rem,5.6vmin,3rem); min-width:3.1rem; text-align:center;
   }
 
-  /* ---------- GAME 3 (image left, choices right) ---------- */
+  /* ---------- GAME 3 (image left, options right) ---------- */
   .row2{ display:flex; gap:min(4vmin,28px); align-items:center; justify-content:center; flex-wrap:wrap; width:96vw; max-width:1200px; }
   .labelBig{ font-size:clamp(2rem,5.6vmin,3.2rem); text-align:center; margin:.4rem 0 1rem; }
-
   .choices{ display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; }
   .choice{
     background:#fff; border:4px solid var(--ink); border-radius:12px; padding:.35rem .75rem;
     cursor:pointer; font-size:clamp(1.6rem,4.8vmin,2.2rem); font-family:'Schoulschrëft', Arial, sans-serif;
   }
+  .score{ font-size:clamp(1rem,2.4vmin,1.2rem); opacity:.85; text-align:center; }
+
+  /* ---------- GAME 4 (plural with gender frame + “zwee/zwou” + stacked plurals) ---------- */
+  .genreFrame{
+    border:10px solid var(--masc); border-radius:28px; width:min(56vmin,84%); aspect-ratio:10/4;
+    display:grid; place-items:center; background:#fff; box-shadow:0 8px 24px rgba(0,0,0,.08);
+    padding:1vmin; text-align:center; font-size:clamp(1.8rem,5.4vmin,3rem);
+  }
+  .twoline{ display:flex; flex-direction:column; gap:10px; align-items:center; }
+  .twoRow{ display:flex; gap:.8rem; justify-content:center; }
+  .stackRight{ display:flex; flex-direction:column; gap:.6rem; align-items:flex-end; }
+  .rowFlex{ display:flex; flex-direction:column; gap:12px; align-items:center; }
+
+  .note{font-size:.95rem; opacity:.75; text-align:center; margin-top:6px;}
 
   /* ---------- GAME 5 ---------- */
   .inlineRow{ display:flex; align-items:center; justify-content:center; gap:min(2.4vmin,18px); flex-wrap:wrap; }
@@ -140,7 +157,9 @@
 
   /* ---------- Responsive tweaks ---------- */
   @media (max-width: 420px){
-    .wordGrid{ grid-template-rows:repeat(3, minmax(38px, auto)); }
+    .wordGrid{ grid-template-rows:repeat(3, minmax(36px, auto)); }
+    .imgGrid{ grid-template-rows:repeat(2, minmax(72px, 1fr)); }
+    .imgToken{ width:min(18vmin,120px); height:min(18vmin,120px); }
     .slot{ min-width:2.6rem; min-height:3.2rem; }
     .letter{ min-width:2.6rem; }
   }
@@ -163,7 +182,6 @@
     <div class="imgGrid" id="imgGrid" aria-label="Biller"></div>
     <div class="g1-controls">
       <label class="toggle"><input type="checkbox" id="soundToggle" checked> Toun un/aus</label>
-      <span class="wordRowNote">3 Zeilen Wierder uewen • 4 Zeilen Biller ënnen</span>
     </div>
   </div>
 </section>
@@ -185,6 +203,7 @@
     <div style="min-width:min(46vmin, 70%); max-width:520px;">
       <div class="labelBig" id="artWord">_____ Numm</div>
       <div class="choices" id="artChoices"></div>
+      <div class="score" id="artScore">Punkten: 0</div>
       <div style="text-align:center; margin-top:12px;"><button class="btn" id="artNext">Weider</button></div>
     </div>
   </div>
@@ -193,9 +212,19 @@
 <!-- GAME 4 -->
 <section class="wrap hidden" id="g4">
   <h1>De Pluriel vun de Schoulsaachen</h1>
-  <div class="labelBig" id="pluWord">Wuert</div>
-  <div class="choices" id="pluChoices"></div>
-  <div><button class="btn" id="pluNext">Weider</button></div>
+  <div class="rowFlex">
+    <div class="genreFrame" id="pluSingFrame">_____</div>
+    <div class="twoline">
+      <div class="twoRow">
+        <button class="choice" id="btnZwee">zwee</button>
+        <button class="choice" id="btnZwou">zwou</button>
+      </div>
+      <div class="stackRight" id="pluChoices"></div>
+    </div>
+    <div class="score" id="pluScore">Punkten: 0</div>
+    <div><button class="btn" id="pluNext">Weider</button></div>
+    <div class="note">(Wiel d’richteg Zuel + Pluriel. Du kriss e Punkt wann béid richteg sinn.)</div>
+  </div>
 </section>
 
 <!-- GAME 5 -->
@@ -247,7 +276,7 @@ const ITEMS = [
 ];
 
 /* Articles & Plurals (skip items without plural in plural-based games) */
-/* NOTE: Per your instruction, the following must be d': Schéier, Léierin, Tafel, Tuschfaarf, Bläistëftsfaarf, Schachtel */
+/* Per your correction, these are d': Schéier, Léierin, Tafel, Tuschfaarf, Bläistëftsfaarf, Schachtel */
 const LEXICON = {
   classeur:    { article:"de",  noun:"Classeur",         plural:"Classeuren" },
   schoulsak:   { article:"de",  noun:"Schoulsak",        plural:"Schoulsäck" },
@@ -260,7 +289,7 @@ const LEXICON = {
   blaisteft:   { article:"de",  noun:"Bläistëft",        plural:"Bläistëfter" },
   lineal:      { article:"de",  noun:"Lineal",           plural:"Linealen" },
   buch:        { article:"d'",  noun:"Buch",             plural:"Bicher" },
-  // Others (like Gummi, Kräid, Blat Pabeier, Spëtzer) left out intentionally to avoid inconsistent plurals
+  // left out: gummi, kraid, blat, spetzer (until confirmed), to avoid inconsistencies
 };
 
 /* Colours & numbers for Game 5 */
@@ -298,6 +327,8 @@ function getLexById(id){
   };
 }
 function flash(el, ok){ el.classList.remove('flash-good','flash-bad'); void el.offsetWidth; el.classList.add(ok?'flash-good':'flash-bad'); setTimeout(()=>el.classList.remove('flash-good','flash-bad'), 260); }
+function isMasc(article){ return article==="de" || article==="den"; }
+function genreColor(article){ return isMasc(article) ? getComputedStyle(document.documentElement).getPropertyValue('--masc').trim() : getComputedStyle(document.documentElement).getPropertyValue('--fem').trim(); }
 
 /* ---------- NAV ---------- */
 const pages = ["g1","g2","g3","g4","g5"]; let pageIdx=0;
@@ -314,7 +345,7 @@ let selectedWord = null;
 function buildGame1(){
   wordGrid.innerHTML=""; imgGrid.innerHTML=""; selectedWord=null;
 
-  // Fill words (3 rows via CSS grid-auto-flow: column). We just append in any order.
+  // Words (3 rows via CSS grid-auto-flow: column)
   const words = shuffle([...ITEMS]);
   words.forEach(it=>{
     const card = document.createElement('div');
@@ -332,28 +363,26 @@ function buildGame1(){
     wordGrid.appendChild(card);
   });
 
-  // Make all word boxes the width of the longest word (so boxes align visually)
+  // Make all word boxes equal to the longest word width
   requestAnimationFrame(()=>{
     let maxW = 0;
     [...wordGrid.children].forEach(c=>{ maxW = Math.max(maxW, c.offsetWidth); });
     [...wordGrid.children].forEach(c=>{ c.style.minWidth = maxW + 'px'; });
   });
 
-  // Fill images (4 rows via CSS grid-auto-flow: column)
+  // Images (2 rows via CSS grid-auto-flow: column)
   const pics = shuffle([...ITEMS]);
   pics.forEach(it=>{
     const tile = document.createElement('div');
     tile.className='imgToken';
     tile.dataset.id = it.id;
     tile.innerHTML = `<img src="${it.img}" alt="${it.label}">`;
-    // Allow drop
     tile.addEventListener('dragover', e=> e.preventDefault());
     tile.addEventListener('drop', e=>{
       e.preventDefault();
       const wid = e.dataTransfer.getData('text/plain');
       checkG1(wid, tile);
     });
-    // Click target to match when a word is selected
     tile.addEventListener('click', ()=>{
       if(!selectedWord) return;
       checkG1(selectedWord.dataset.id, tile, selectedWord);
@@ -361,7 +390,7 @@ function buildGame1(){
     imgGrid.appendChild(tile);
   });
 
-  // Recompute on resize for mobile landscape/portrait changes
+  // Recompute on resize (mobile orientation etc.)
   window.addEventListener('resize', resizeWordWidth);
   function resizeWordWidth(){
     [...wordGrid.children].forEach(c=>{ c.style.minWidth=''; });
@@ -422,27 +451,66 @@ function setupSpellRound(){
 }
 spellNext.onclick = setupSpellRound;
 
-/* ---------- GAME 3: Article picker ---------- */
-const artImg = $('#artImg'), artWord = $('#artWord'), artChoices = $('#artChoices'), artNext = $('#artNext');
-let bag3 = shuffle([...ITEMS]); let cur3=null;
+/* ---------- GAME 3: Article picker with scoring + retry pass ---------- */
+const artImg = $('#artImg'), artWord = $('#artWord'), artChoices = $('#artChoices'), artNext = $('#artNext'), artScoreEl = $('#artScore');
+let g3Main = shuffle([...ITEMS]);  // first pass (each exactly once)
+let g3Retry = [];                  // items answered wrong on first pass
+let g3Mode = 'main';               // 'main' or 'retry'
+let g3Score = 0;
+
 function setupArtRound(){
-  if(bag3.length===0){ bag3 = shuffle([...ITEMS]); }
-  cur3 = bag3.pop();
-  const lex = getLexById(cur3.id);
-  artImg.src = cur3.img; artImg.alt = lex.label;
+  // Refill / switch mode when needed
+  if(g3Mode==='main' && g3Main.length===0){
+    if(g3Retry.length){ g3Mode='retry'; g3Main = shuffle(g3Retry); g3Retry = []; }
+    else { showPage(pageIdx+1); return; }
+  } else if(g3Mode==='retry' && g3Main.length===0){
+    showPage(pageIdx+1); return;
+  }
+
+  const cur = g3Main.pop();
+  const lex = getLexById(cur.id);
+  artImg.src = cur.img; artImg.alt = lex.label;
   artWord.textContent = `_____ ${lex.noun}`;
   artChoices.innerHTML = "";
-  const opts = ["de","den","d'"];
-  shuffle(opts).forEach(o=>{
+  ["de","den","d'"].sort(()=>Math.random()-.5).forEach(o=>{
     const b = document.createElement('button'); b.className='choice'; b.textContent=o;
-    b.onclick=()=>{ const ok=(o===lex.article); flash(artImg.parentElement, ok); if(ok) setTimeout(setupArtRound, 500); };
+    b.onclick = ()=>{
+      const ok = (o===lex.article);
+      flash(artImg.parentElement, ok);
+      if(ok){ g3Score++; updateArtScore(); }
+      else if(g3Mode==='main'){ g3Retry.push(cur); } // only queue for retry when in main pass
+      setTimeout(setupArtRound, 450);
+    };
     artChoices.appendChild(b);
   });
 }
+function updateArtScore(){ artScoreEl.textContent = `Punkten: ${g3Score}`; }
 artNext.onclick = setupArtRound;
 
-/* ---------- GAME 4: Plural quiz ---------- */
-const pluWord = $('#pluWord'), pluChoices = $('#pluChoices'), pluNext = $('#pluNext');
+/* ---------- GAME 4: Plural with gender frame + zwee/zwou + scoring + retry ---------- */
+const pluSingFrame = $('#pluSingFrame'), btnZwee = $('#btnZwee'), btnZwou = $('#btnZwou'), pluChoices = $('#pluChoices'), pluNext = $('#pluNext'), pluScoreEl = $('#pluScore');
+let g4Pool = ITEMS.map(i=>getLexById(i.id)).filter(x=>x.plural); // only items with confirmed plural
+let g4Main = shuffle(g4Pool.slice()); // first pass
+let g4Retry = [];
+let g4Mode = 'main';
+let g4Score = 0;
+
+let g4Current = null;
+let g4PickTwo = null;     // 'zwee' or 'zwou'
+let g4PickPlural = null;  // candidate string
+
+function colorizeFrame(article){
+  const col = genreColor(article);
+  pluSingFrame.style.borderColor = col;
+}
+
+function resetG4Selections(){
+  g4PickTwo = null; g4PickPlural = null;
+  btnZwee.classList.remove('flash-good','flash-bad');
+  btnZwou.classList.remove('flash-good','flash-bad');
+  [...pluChoices.children].forEach(c=> c.classList.remove('flash-good','flash-bad'));
+}
+
 function pluralDistractors(baseSing, correct){
   const stems = [
     baseSing.replace(/e/g,'ë').replace(/a/g,'ä'),
@@ -455,21 +523,50 @@ function pluralDistractors(baseSing, correct){
   cand.delete(correct);
   return shuffle([...cand]).slice(0,3);
 }
+
 function setupPluralRound(){
-  const pool = ITEMS.map(x=>getLexById(x.id)).filter(x=>x.plural); // only confirmed plurals
-  if(!pool.length){ pluWord.textContent="(Plurale ginn ergänzt)"; pluChoices.innerHTML=""; return; }
-  const cur = pool[Math.floor(Math.random()*pool.length)];
-  const wrong = pluralDistractors(cur.noun, cur.plural);
-  const opts = shuffle([cur.plural, ...wrong]);
-  pluWord.textContent = cur.label;
-  pluChoices.innerHTML="";
+  // switch phases as needed
+  if(g4Mode==='main' && g4Main.length===0){
+    if(g4Retry.length){ g4Mode='retry'; g4Main = shuffle(g4Retry); g4Retry = []; }
+    else { showPage(pageIdx+1); return; }
+  } else if(g4Mode==='retry' && g4Main.length===0){
+    showPage(pageIdx+1); return;
+  }
+
+  resetG4Selections();
+  g4Current = g4Main.pop();
+  // Frame text and color by genre
+  pluSingFrame.textContent = g4Current.label; // full with article
+  colorizeFrame(g4Current.article);
+
+  // two form buttons
+  btnZwee.onclick = ()=>{ g4PickTwo='zwee'; };
+  btnZwou.onclick = ()=>{ g4PickTwo='zwou'; };
+
+  // plural choices stacked right
+  pluChoices.innerHTML = "";
+  const wrong = pluralDistractors(g4Current.noun, g4Current.plural);
+  const opts = shuffle([g4Current.plural, ...wrong]);
   opts.forEach(o=>{
-    const b=document.createElement('button'); b.className='choice'; b.textContent=o;
-    b.onclick=()=>{ const ok=(o===cur.plural); flash(pluWord, ok); if(ok) setTimeout(setupPluralRound, 500); };
+    const b = document.createElement('button'); b.className='choice'; b.textContent=o;
+    b.style.minWidth='10ch';
+    b.onclick=()=>{ g4PickPlural = o; };
     pluChoices.appendChild(b);
   });
 }
-pluNext.onclick = setupPluralRound;
+
+function evaluateG4(){
+  if(!g4Current) return;
+  const needTwo = isMasc(g4Current.article) ? 'zwee' : 'zwou';
+  const ok = (g4PickTwo === needTwo) && (g4PickPlural === g4Current.plural);
+  // visual flash on the frame
+  flash(pluSingFrame, ok);
+  if(ok){ g4Score++; updatePluScore(); }
+  else if(g4Mode==='main'){ g4Retry.push(g4Current); }
+  g4Current = null; setTimeout(setupPluralRound, 500);
+}
+function updatePluScore(){ pluScoreEl.textContent = `Punkten: ${g4Score}`; }
+pluNext.onclick = evaluateG4;
 
 /* ---------- GAME 5: Number–image–colour + Check ---------- */
 const sentNum=$('#sentNum'), sentImg=$('#sentImg'), sentCol=$('#sentCol');
@@ -477,7 +574,7 @@ const sentNew=$('#sentNew'), sentCheck=$('#sentCheck'), sentText=$('#sentText');
 let curSentence=null;
 function numWord(n){ const m={2:"Zwee",3:"Dräi",4:"Véier",5:"Fënnef",6:"Sechs",7:"Siwen",8:"Aacht",9:"Néng",10:"Zéng"}; return m[n]||String(n); }
 function buildSentence(){
-  const pool = ITEMS.map(x=>getLexById(x.id)).filter(x=>x.plural);
+  const pool = g4Pool.length ? g4Pool : ITEMS.map(x=>getLexById(x.id)).filter(x=>x.plural);
   const it = pool.length ? pool[Math.floor(Math.random()*pool.length)] : getLexById('classeur');
   const n  = NUMBERS[Math.floor(Math.random()*NUMBERS.length)];
   const c  = COLOURS[Math.floor(Math.random()*COLOURS.length)];
@@ -494,8 +591,11 @@ sentCheck.onclick = ()=>{ if(!curSentence) return; sentText.textContent = `${num
 function init(){
   buildGame1();
   setupSpellRound();
-  setupArtRound();
-  setupPluralRound();
+  // Game 3 starts a fresh pass with scoring
+  g3Main = shuffle([...ITEMS]); g3Retry=[]; g3Mode='main'; g3Score=0; updateArtScore(); setupArtRound();
+  // Game 4 scoring & data
+  g4Pool = ITEMS.map(i=>getLexById(i.id)).filter(x=>x.plural);
+  g4Main = shuffle(g4Pool.slice()); g4Retry=[]; g4Mode='main'; g4Score=0; updatePluScore(); setupPluralRound();
   buildSentence();
   showPage(0);
 }
