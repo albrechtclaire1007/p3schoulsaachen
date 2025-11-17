@@ -142,6 +142,12 @@
   .twoRow{ display:flex; gap:.8rem; justify-content:center; align-items:center; width:100%; }
   .stackLeft{ display:flex; flex-direction:column; gap:.8rem; align-items:flex-start; width:100%; }
   .choice.small{ font-size:clamp(1.4rem,4.2vmin,2rem); padding:.3rem .6rem; }
+
+  /* NEW: visible selection for any small choice */
+  .choice.small.selected{
+    outline:4px solid var(--blue-dark);
+  }
+
   .choice.toggle.selected{ outline:4px solid var(--blue-dark); }
   .btn[disabled]{ opacity:.5; pointer-events:none; }
 
@@ -490,7 +496,7 @@ function setupArtRound(){
 function updateArtScore(){ artScoreEl.textContent = `Punkten: ${g3Score}`; }
 artNext.onclick = setupArtRound;
 
-/* ---------- GAME 4: Plural with gender frame + zwee/zwou + scoring + retry ---------- */
+/* ---------- GAME 4: Plural with gender + zwee/zwou + scoring + retry ---------- */
 const pluSingFrame = $('#pluSingFrame'),
       btnZwee = $('#btnZwee'),
       btnZwou = $('#btnZwou'),
@@ -515,18 +521,17 @@ function colorizeFrame(article){
 }
 
 function resetG4Selections(){
-  g4PickTwo = null; g4PickPlural = null;
-  [btnZwee, btnZwou].forEach(b=> b.classList.remove('selected','flash-good','flash-bad'));
-  [...pluChoices.children].forEach(c=> c.classList.remove('selected','flash-good','flash-bad'));
-  setPluNextReady(false);
-}
+  g4PickTwo = null;
+  g4PickPlural = null;
 
-function setPluNextReady(on){
-  pluNext.disabled = !on;
-}
+  [btnZwee, btnZwou].forEach(b=>{
+    b.classList.remove('selected','flash-good','flash-bad');
+  });
+  [...pluChoices.children].forEach(c=>{
+    c.classList.remove('selected','flash-good','flash-bad');
+  });
 
-function maybeEnableNext(){
-  setPluNextReady(Boolean(g4PickTwo && g4PickPlural));
+  pluNext.disabled = true;
 }
 
 function pluralDistractors(baseSing, correct){
@@ -542,66 +547,93 @@ function pluralDistractors(baseSing, correct){
   return shuffle([...cand]).slice(0,3);
 }
 
+function maybeEnablePluNext(){
+  pluNext.disabled = !(g4PickTwo && g4PickPlural);
+}
+
 function setupPluralRound(){
+  // choose next item
   if(g4Mode==='main' && g4Main.length===0){
-    if(g4Retry.length){ g4Mode='retry'; g4Main = shuffle(g4Retry); g4Retry = []; }
-    else { showPage(pageIdx+1); return; }
+    if(g4Retry.length){
+      g4Mode = 'retry';
+      g4Main = shuffle(g4Retry);
+      g4Retry = [];
+    } else {
+      showPage(pageIdx+1);
+      return;
+    }
   } else if(g4Mode==='retry' && g4Main.length===0){
-    showPage(pageIdx+1); return;
+    showPage(pageIdx+1);
+    return;
   }
 
   resetG4Selections();
 
   g4Current = g4Main.pop();
-  pluSingFrame.textContent = g4Current.label; // full with article
+  pluSingFrame.textContent = g4Current.label; // full label with article
   colorizeFrame(g4Current.article);
 
+  // number buttons
   btnZwee.onclick = ()=>{
     g4PickTwo = 'zwee';
     btnZwee.classList.add('selected');
     btnZwou.classList.remove('selected');
-    maybeEnableNext();
+    maybeEnablePluNext();
   };
   btnZwou.onclick = ()=>{
     g4PickTwo = 'zwou';
     btnZwou.classList.add('selected');
     btnZwee.classList.remove('selected');
-    maybeEnableNext();
+    maybeEnablePluNext();
   };
 
+  // plural options
   pluChoices.innerHTML = "";
   const wrong = pluralDistractors(g4Current.noun, g4Current.plural);
   const opts = shuffle([g4Current.plural, ...wrong]);
+
   opts.forEach(o=>{
-    const b = document.createElement('button'); b.className='choice small'; b.textContent=o;
-    b.style.minWidth='12ch';
-    b.onclick=()=>{
+    const b = document.createElement('button');
+    b.className = 'choice small';
+    b.textContent = o;
+    b.style.minWidth = '12ch';
+
+    b.onclick = ()=>{
       [...pluChoices.children].forEach(x=> x.classList.remove('selected'));
       b.classList.add('selected');
       g4PickPlural = o;
-      maybeEnableNext();
+      maybeEnablePluNext();
     };
+
     pluChoices.appendChild(b);
   });
 }
 
+function updatePluScore(){
+  pluScoreEl.textContent = `Punkten: ${g4Score}`;
+}
+
 function evaluateG4(){
-  if(!g4Current){ return; }
+  if(!g4Current) return;
   if(!(g4PickTwo && g4PickPlural)){
     flash(pluSingFrame, false);
     return;
   }
+
   const needTwo = isMasc(g4Current.article) ? 'zwee' : 'zwou';
   const ok = (g4PickTwo === needTwo) && (g4PickPlural === g4Current.plural);
 
   flash(pluSingFrame, ok);
-  if(ok){ g4Score++; updatePluScore(); }
-  else if(g4Mode==='main'){ g4Retry.push(g4Current); }
+  if(ok){
+    g4Score++;
+    updatePluScore();
+  } else if(g4Mode === 'main'){
+    g4Retry.push(g4Current);
+  }
 
   g4Current = null;
   setTimeout(setupPluralRound, 500);
 }
-function updatePluScore(){ pluScoreEl.textContent = `Punkten: ${g4Score}`; }
 pluNext.onclick = evaluateG4;
 
 /* ---------- GAME 5: Number–image–colour + Check ---------- */
